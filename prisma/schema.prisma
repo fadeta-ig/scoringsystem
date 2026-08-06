@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum AdminRole {
+  ADMIN
+}
+
+enum EventStatus {
+  DRAFT
+  LIVE
+  FINISHED
+}
+
+enum CompetitionStage {
+  PRELIMINARY
+  FINAL_SESSION_1
+  FINAL_SESSION_2
+  FINAL_SESSION_3
+  FINAL_COMPLETE
+  GRAND_FINAL
+  FINISHED
+}
+
+enum CompetitionActionKind {
+  FINAL_S1_RESULT
+  FINAL_S2_RESULT
+  FINAL_S3_RESULT
+  JURY_SELECTION
+  START_GRAND_FINAL
+  GRAND_DECISION
+  GRAND_RESULT
+}
+
+enum AnswerOutcome {
+  CORRECT
+  WRONG
+}
+
+enum AnswerMode {
+  SELF
+  PASS
+}
+
+enum ProjectionMode {
+  LIVE
+  LEADERBOARD
+  SESSION_RESULT
+  PRELIMINARY_RESULTS
+  QUALIFIERS
+  BREAK
+  WINNER
+}
+
+model AdminUser {
+  id                 String              @id @default(cuid())
+  name               String
+  username           String              @unique
+  email              String?             @unique
+  passwordHash       String
+  role               AdminRole           @default(ADMIN)
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  competitionActions CompetitionAction[]
+
+  @@map("admin_users")
+}
+
+model Event {
+  id               String             @id @default(cuid())
+  name             String
+  date             DateTime?
+  status           EventStatus        @default(DRAFT)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  teams            Team[]
+  competitionState CompetitionState?
+  actions          CompetitionAction[]
+  scoreDeltas      ScoreDelta[]
+
+  @@map("events")
+}
+
+model Team {
+  id                     String              @id @default(cuid())
+  eventId                String
+  name                   String
+  photoPath              String?
+  bannerColor            String
+  preliminarySession     Int
+  displayOrder           Int
+  preliminaryScore       Int?
+  completionSeconds      Int?
+  isSessionWinner        Boolean             @default(false)
+  finalOrder             Int?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  event                  Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scoreDeltas            ScoreDelta[]
+  actionsAsActor         CompetitionAction[] @relation("ActionActorTeam")
+  actionsAsTarget        CompetitionAction[] @relation("ActionTargetTeam")
+  grandFinalFor          CompetitionState[]  @relation("GrandFinalTeam")
+
+  @@unique([eventId, preliminarySession, displayOrder])
+  @@unique([eventId, finalOrder])
+  @@index([eventId, preliminarySession])
+  @@map("teams")
+}
+
+model CompetitionState {
+  id                   String           @id @default(cuid())
+  eventId              String           @unique
+  stage                CompetitionStage @default(PRELIMINARY)
+  currentQuestion      Int              @default(1)
+  grandFinalTeamId     String?
+  grandPrize           Int              @default(0)
+  grandDecisionPending Boolean          @default(false)
+  projectionMode       ProjectionMode   @default(LIVE)
+  projectionSession    Int?
+  projectionMessage    String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  event                Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  grandFinalTeam       Team?            @relation("GrandFinalTeam", fields: [grandFinalTeamId], references: [id], onDelete: SetNull)
+
+  @@map("competition_states")
+}
+
+model CompetitionAction {
+  id             String                @id @default(cuid())
+  eventId        String
+  kind           CompetitionActionKind
+  stage          CompetitionStage
+  questionNumber Int?
+  actorTeamId    String?
+  targetTeamId   String?
+  amount         Int?
+  outcome        AnswerOutcome?
+  answerMode     AnswerMode?
+  description    String
+  stateBefore    Json
+  stateAfter     Json
+  createdById    String?
+  createdAt      DateTime              @default(now())
+  revertedAt     DateTime?
+  event          Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  actorTeam      Team?                 @relation("ActionActorTeam", fields: [actorTeamId], references: [id], onDelete: SetNull)
+  targetTeam     Team?                 @relation("ActionTargetTeam", fields: [targetTeamId], references: [id], onDelete: SetNull)
+  createdBy      AdminUser?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  scoreDeltas    ScoreDelta[]
+
+  @@index([eventId, createdAt])
+  @@index([eventId, revertedAt])
+  @@map("competition_actions")
+}
+
+model ScoreDelta {
+  id        String            @id @default(cuid())
+  eventId   String
+  actionId  String
+  teamId    String
+  points    Int
+  createdAt DateTime          @default(now())
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  action    CompetitionAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  team      Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([actionId])
+  @@index([teamId])
+  @@map("score_deltas")
+}
