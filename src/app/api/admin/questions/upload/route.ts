@@ -120,7 +120,7 @@ export async function POST(request: Request) {
         mappings: {
           create: Array.from({ length: processed.totalPages }, (_, index) => ({
             pageNumber: index + 1,
-            questionNumber: null,
+            questionNumber: index + 1,
           })),
         },
       },
