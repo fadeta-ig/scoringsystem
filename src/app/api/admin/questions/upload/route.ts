@@ -12,6 +12,7 @@ import { emitLiveState } from "@/lib/realtime";
 import type { CompetitionStage } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 const VALID_STAGES: CompetitionStage[] = [
   "PRELIMINARY",

@@ -27,9 +27,15 @@ allowedOrigins.add(defaultOrigin);
 
 await app.prepare();
 
-const httpServer = createServer((request, response) => {
+const httpServer = createServer({
+  maxHeaderSize: 32768,
+}, (request, response) => {
   handler(request, response);
 });
+
+httpServer.requestTimeout = 300000; // 5 minutes
+httpServer.headersTimeout = 300000;
+httpServer.keepAliveTimeout = 65000;
 
 const io = new Server(httpServer, {
   path: "/socket.io",
