@@ -39,6 +39,36 @@ async function requireOperator() {
   return operator;
 }
 
+async function readStreamToBytes(
+  stream: ReadableStream<Uint8Array> | null,
+): Promise<Uint8Array> {
+  if (!stream) {
+    return new Uint8Array(0);
+  }
+
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalLength = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      chunks.push(value);
+      totalLength += value.length;
+    }
+  }
+
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return result;
+}
+
 export async function POST(request: Request) {
   const operator = await requireOperator();
 
@@ -55,13 +85,12 @@ export async function POST(request: Request) {
   const headerStage = request.headers.get("x-file-stage");
 
   if (headerFileName && headerStage) {
-    // Direct Binary ArrayBuffer Mode (Fast & Immune to multipart 41% deadlock)
+    // Direct Stream Reader Mode (Chunked bypass of Next.js 1MB buffer limit)
     fileName = decodeURIComponent(headerFileName);
     stage = headerStage;
     mimeType = request.headers.get("content-type") || "application/pdf";
 
-    const arrayBuffer = await request.arrayBuffer();
-    bytes = new Uint8Array(arrayBuffer);
+    bytes = await readStreamToBytes(request.body);
   } else {
     // Multipart FormData Fallback Mode
     const formData = await request.formData();
