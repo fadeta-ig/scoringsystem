@@ -87,16 +87,26 @@ export async function DELETE(
     );
   }
 
-  await removeQuestionFiles(questionFile.id);
+  // Atomically delete DB mapping and file records
+  await prisma.$transaction([
+    prisma.questionMapping.deleteMany({
+      where: { fileId: questionFile.id },
+    }),
+    prisma.questionFile.delete({
+      where: { id: questionFile.id },
+    }),
+  ]);
 
-  await prisma.questionMapping.deleteMany({
-    where: { fileId: questionFile.id },
-  });
-  await prisma.questionFile.delete({
-    where: { id: questionFile.id },
-  });
+  // Asynchronously remove files from disk in background without blocking response
+  setTimeout(async () => {
+    try {
+      await removeQuestionFiles(questionFile.id);
+    } catch {
+      // Ignore background disk cleanup errors
+    }
+  }, 1000);
 
   await emitLiveState(questionFile.eventId);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, message: "File soal berhasil dihapus." });
 }

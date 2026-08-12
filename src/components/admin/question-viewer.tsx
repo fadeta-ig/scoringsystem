@@ -40,6 +40,7 @@ import {
 import { PdfViewer } from "@/components/ui/pdf-viewer";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { ResetAllButton } from "@/components/admin/reset-all-button";
+import { DeleteQuestionFileButton } from "@/components/admin/delete-question-file-button";
 import { QuestionMapping } from "@/components/admin/question-mapping";
 import { QuestionUpload } from "@/components/admin/question-upload";
 import { Badge } from "@/components/ui/badge";
@@ -260,6 +261,14 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
             <RotateCcw className="size-3.5 mr-1" />
             Undo Aksi
           </Button>
+
+          {qv && (
+            <DeleteQuestionFileButton
+              fileId={qv.fileId}
+              fileName={qv.originalName}
+              stageLabel={state.flow.label}
+            />
+          )}
 
           <ResetAllButton />
         </div>
@@ -738,6 +747,9 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
         <div>
           <QuestionUpload
             activeStage={currentStage}
+            activeFileId={qv?.fileId}
+            activeFileName={qv?.originalName}
+            activeFileStageLabel={state.flow.label}
             onUploadSuccess={() => {
               router.refresh();
               setActiveTab("CONTROLLER");

@@ -8,8 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
+import { DeleteQuestionFileButton } from "@/components/admin/delete-question-file-button";
+
 type QuestionUploadProps = {
   activeStage: string;
+  activeFileId?: string;
+  activeFileName?: string;
+  activeFileStageLabel?: string;
   onUploadSuccess?: () => void;
 };
 
@@ -21,7 +26,13 @@ const stageOptions = [
   { value: "GRAND_FINAL", label: "Grand Final" },
 ];
 
-export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadProps) {
+export function QuestionUpload({
+  activeStage,
+  activeFileId,
+  activeFileName,
+  activeFileStageLabel,
+  onUploadSuccess,
+}: QuestionUploadProps) {
   const router = useRouter();
   const [selectedStage, setSelectedStage] = useState(
     stageOptions.some((opt) => opt.value === activeStage) ? activeStage : "PRELIMINARY"
@@ -137,6 +148,32 @@ export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadP
               />
             </div>
           </div>
+
+          {/* Active File Banner Card if file exists for current stage */}
+          {activeFileId && activeFileName && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-xs text-emerald-950 shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-bold text-emerald-900 truncate">
+                    File Aktif Terpasang: <span className="font-mono text-emerald-800">{activeFileName}</span>
+                  </p>
+                  <p className="text-[11px] text-emerald-700">
+                    Sesi: {activeFileStageLabel || selectedStage} · Jika ingin mengganti file, Anda dapat menghapus file ini terlebih dahulu.
+                  </p>
+                </div>
+              </div>
+
+              <DeleteQuestionFileButton
+                fileId={activeFileId}
+                fileName={activeFileName}
+                stageLabel={activeFileStageLabel || selectedStage}
+                variant="outline"
+                size="sm"
+                className="bg-white hover:bg-red-50 border-red-200 text-red-700 font-bold shrink-0"
+              />
+            </div>
+          )}
 
           {file && (
             <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">
