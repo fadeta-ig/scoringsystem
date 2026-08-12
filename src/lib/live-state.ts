@@ -48,6 +48,13 @@ export async function getLiveState(eventId?: string | null) {
       competitionState: {
         include: { grandFinalTeam: true },
       },
+      questionFiles: {
+        include: {
+          mappings: {
+            orderBy: { pageNumber: "asc" },
+          },
+        },
+      },
       actions: {
         where: { revertedAt: null },
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -248,9 +255,46 @@ export async function getLiveState(eventId?: string | null) {
       projectionMode: event.competitionState.projectionMode,
       projectionSession: event.competitionState.projectionSession,
       projectionMessage: event.competitionState.projectionMessage,
+      questionSlideStatus: event.competitionState.questionSlideStatus,
       updatedAt: event.competitionState.updatedAt.toISOString(),
     },
     flow,
+    questionViewer: (() => {
+      const compState = event.competitionState;
+
+      if (!compState) {
+        return null;
+      }
+
+      const activeStageFile = event.questionFiles.find(
+        (f) => f.stage === compState.stage,
+      );
+
+      if (!activeStageFile) {
+        return null;
+      }
+
+      const activeQuestionNum = compState.currentQuestion;
+      const activeMapping = activeStageFile.mappings.find(
+        (m) => m.questionNumber === activeQuestionNum,
+      );
+
+      return {
+        fileId: activeStageFile.id,
+        stage: activeStageFile.stage,
+        originalName: activeStageFile.originalName,
+        storagePath: activeStageFile.storagePath,
+        totalPages: activeStageFile.totalPages,
+        activePageNumber: activeMapping?.pageNumber ?? null,
+        activeQuestionNumber: activeQuestionNum,
+        activeStatus: compState.questionSlideStatus,
+        mappings: activeStageFile.mappings.map((m) => ({
+          id: m.id,
+          pageNumber: m.pageNumber,
+          questionNumber: m.questionNumber,
+        })),
+      };
+    })(),
     preliminarySessions,
     finalists,
     leaderboard,

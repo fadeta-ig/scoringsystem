@@ -9,6 +9,7 @@ import {
   CompetitionStage,
   Prisma,
   ProjectionMode,
+  QuestionSlideStatus,
 } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import {
@@ -44,6 +45,7 @@ type StateSnapshot = {
   projectionMode: ProjectionMode;
   projectionSession: number | null;
   projectionMessage: string | null;
+  questionSlideStatus?: QuestionSlideStatus;
 };
 
 type Transaction = Prisma.TransactionClient;
@@ -86,6 +88,7 @@ async function getEventIdOrThrow() {
 
 async function refresh(eventId: string) {
   revalidatePath("/admin");
+  revalidatePath("/admin/soal");
   revalidatePath("/admin/proyeksi");
   revalidatePath("/proyeksi");
 
@@ -158,6 +161,7 @@ function snapshotState(state: {
   projectionMode: ProjectionMode;
   projectionSession: number | null;
   projectionMessage: string | null;
+  questionSlideStatus?: QuestionSlideStatus;
 }): StateSnapshot {
   return {
     stage: state.stage,
@@ -168,6 +172,7 @@ function snapshotState(state: {
     projectionMode: state.projectionMode,
     projectionSession: state.projectionSession,
     projectionMessage: state.projectionMessage,
+    questionSlideStatus: state.questionSlideStatus ?? "PENDING",
   };
 }
 
@@ -578,6 +583,7 @@ export async function setProjectionView(formData: FormData) {
         QUALIFIERS: "Tim yang Lolos",
         BREAK: "Layar Break",
         WINNER: "Pemenang",
+        QUESTION_SLIDE: "Tampilan Slide Soal",
       };
 
       return labels[mode];

@@ -24,6 +24,7 @@ import {
 import { io } from "socket.io-client";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { IndonesianAnimalMascot } from "@/components/ui/mascot-avatar";
+import { QuestionSlideScene } from "@/components/projector/question-slide-scene";
 import { formatDuration } from "@/lib/competition-rules";
 import type { LiveState } from "@/lib/live-state";
 import { shouldApplyLiveState } from "@/lib/live-state-client";
@@ -102,6 +103,7 @@ export function ProjectorStage({
     state.competition.stage,
     state.competition.currentQuestion,
     state.competition.grandPrize,
+    state.competition.questionSlideStatus,
   ].join("-");
 
   return (
@@ -130,6 +132,10 @@ export function ProjectorStage({
 
 function ProjectionScene({ state }: { state: State }) {
   const mode = state.competition.projectionMode;
+
+  if (mode === "QUESTION_SLIDE") {
+    return <QuestionSlideScene state={state} />;
+  }
 
   if (mode === "BREAK") {
     return <BreakScene state={state} />;
@@ -981,6 +987,7 @@ function projectionTitle(state: State) {
       : "Meet The Finalists",
     BREAK: "Intermission",
     WINNER: "Hasil Akhir Grand Final",
+    QUESTION_SLIDE: state.flow.label,
   };
 
   return labels[mode];

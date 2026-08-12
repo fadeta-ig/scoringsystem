@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import {
+  FileText,
   LayoutDashboard,
   SlidersHorizontal,
   UsersRound,
@@ -48,6 +49,17 @@ export default async function AdminLayout({
               <a href="/admin">
                 <LayoutDashboard size={16} />
                 Scoring
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="w-full sm:w-auto"
+            >
+              <a href="/admin/soal">
+                <FileText size={16} />
+                Viewer Soal
               </a>
             </Button>
             <Button

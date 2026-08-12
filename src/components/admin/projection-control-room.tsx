@@ -13,6 +13,7 @@ import {
   Check,
   Coffee,
   Crown,
+  FileText,
   History,
   ImageIcon,
   MonitorPlay,
@@ -51,6 +52,7 @@ const modeLabels: Record<ProjectionMode, string> = {
   QUALIFIERS: "Tim yang lolos",
   BREAK: "Break",
   WINNER: "Pemenang",
+  QUESTION_SLIDE: "Tampilan slide soal",
 };
 
 export function ProjectionControlRoom({
@@ -150,6 +152,13 @@ export function ProjectionControlRoom({
               description="Mengikuti babak dan pertanyaan aktif."
               icon={<Radio />}
               active={state.competition.projectionMode === "LIVE"}
+            />
+            <ProjectionPreset
+              mode="QUESTION_SLIDE"
+              title="Tampilan Slide Soal"
+              description="Menampilkan slide PDF/PPTX soal secara fullscreen."
+              icon={<FileText />}
+              active={state.competition.projectionMode === "QUESTION_SLIDE"}
             />
             <ProjectionPreset
               mode="LEADERBOARD"

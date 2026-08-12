@@ -54,6 +54,15 @@ enum ProjectionMode {
   QUALIFIERS
   BREAK
   WINNER
+  QUESTION_SLIDE
+}
+
+enum QuestionSlideStatus {
+  PENDING
+  PREVIEW
+  LIVE
+  SCORING
+  COMPLETED
 }
 
 model AdminUser {
@@ -82,6 +91,7 @@ model Event {
   competitionState CompetitionState?
   actions          CompetitionAction[]
   scoreDeltas      ScoreDelta[]
+  questionFiles    QuestionFile[]
 
   @@map("events")
 }
@@ -113,22 +123,52 @@ model Team {
 }
 
 model CompetitionState {
-  id                   String           @id @default(cuid())
-  eventId              String           @unique
-  stage                CompetitionStage @default(PRELIMINARY)
-  currentQuestion      Int              @default(1)
+  id                   String               @id @default(cuid())
+  eventId              String               @unique
+  stage                CompetitionStage     @default(PRELIMINARY)
+  currentQuestion      Int                  @default(1)
   grandFinalTeamId     String?
-  grandPrize           Int              @default(0)
-  grandDecisionPending Boolean          @default(false)
-  projectionMode       ProjectionMode   @default(LIVE)
+  grandPrize           Int                  @default(0)
+  grandDecisionPending Boolean              @default(false)
+  projectionMode       ProjectionMode       @default(LIVE)
   projectionSession    Int?
   projectionMessage    String?
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
-  event                Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  grandFinalTeam       Team?            @relation("GrandFinalTeam", fields: [grandFinalTeamId], references: [id], onDelete: SetNull)
+  questionSlideStatus  QuestionSlideStatus  @default(PENDING)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  event                Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  grandFinalTeam       Team?                @relation("GrandFinalTeam", fields: [grandFinalTeamId], references: [id], onDelete: SetNull)
 
   @@map("competition_states")
+}
+
+model QuestionFile {
+  id            String             @id @default(cuid())
+  eventId       String
+  originalName  String
+  storagePath   String
+  mimeType      String
+  totalPages    Int
+  stage         CompetitionStage
+  uploadedAt    DateTime           @default(now())
+  event         Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  mappings      QuestionMapping[]
+
+  @@unique([eventId, stage])
+  @@index([eventId])
+  @@map("question_files")
+}
+
+model QuestionMapping {
+  id              String        @id @default(cuid())
+  fileId          String
+  pageNumber      Int
+  questionNumber  Int?
+  file            QuestionFile  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, pageNumber])
+  @@index([fileId, questionNumber])
+  @@map("question_mappings")
 }
 
 model CompetitionAction {
