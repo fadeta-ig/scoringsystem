@@ -20,6 +20,9 @@ import {
   Trophy,
   X,
   XCircle,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -60,6 +63,7 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
   const isProjectionOnSlide = state.competition.projectionMode === "QUESTION_SLIDE";
 
   const [selectedPage, setSelectedPage] = useState<number>(qv?.activePageNumber || 1);
+  const [zoomLevel, setZoomLevel] = useState<number>(1.0);
   const [auctionBid, setAuctionBid] = useState<number>(30);
   const [auctionWinnerId, setAuctionWinnerId] = useState<string>(finalists[0]?.id || "");
   const [targetTeamId, setTargetTeamId] = useState<string>("");
@@ -292,41 +296,83 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
 
         {/* Right Main Stage: Viewer + Action Bar + Scoring Panel */}
         <div className="flex flex-col gap-4">
-          {/* Presentation Viewer Area */}
-          <Card className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 min-h-[440px] shadow-xl">
-            <div className="flex h-[440px] w-full items-center justify-center p-3">
-              <PdfViewer
-                url={qv.storagePath}
-                pageNumber={selectedPage}
-                className="max-h-full max-w-full rounded-lg"
-              />
+          {/* Presentation Viewer Area with Zoom & Pan */}
+          <Card className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 min-h-[460px] shadow-xl">
+            <div className="flex h-[460px] w-full items-center justify-center overflow-auto p-4">
+              <div
+                className="transition-transform duration-200 ease-out"
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                  transformOrigin: "center center",
+                }}
+              >
+                <PdfViewer
+                  url={qv.storagePath}
+                  pageNumber={selectedPage}
+                  className="max-h-[420px] max-w-full rounded-lg shadow-2xl"
+                />
+              </div>
             </div>
 
-            {/* Slide Navigation Overlay Controls */}
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2 backdrop-blur-md text-white text-xs">
-              <div className="flex items-center gap-2">
+            {/* Slide Navigation & Zoom Overlay Controls */}
+            <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-900/90 px-3.5 py-2 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
+              {/* Prev / Next Slide */}
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 text-white hover:bg-slate-800"
+                  className="h-7 text-white hover:bg-slate-800 px-2"
                   disabled={selectedPage <= 1}
                   onClick={() => setSelectedPage((p) => Math.max(1, p - 1))}
                 >
-                  <ChevronLeft className="size-4 mr-1" /> Prev Slide
+                  <ChevronLeft className="size-4 mr-0.5" /> Prev
                 </Button>
 
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 px-1">
                   Slide {selectedPage} / {qv.totalPages}
                 </span>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 text-white hover:bg-slate-800"
+                  className="h-7 text-white hover:bg-slate-800 px-2"
                   disabled={selectedPage >= qv.totalPages}
                   onClick={() => setSelectedPage((p) => Math.min(qv.totalPages, p + 1))}
                 >
-                  Next Slide <ChevronRight className="size-4 ml-1" />
+                  Next <ChevronRight className="size-4 ml-0.5" />
+                </Button>
+              </div>
+
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/80 px-2 py-0.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  title="Zoom Out (-)"
+                  disabled={zoomLevel <= 0.5}
+                  onClick={() => setZoomLevel((z) => Math.max(0.5, Number((z - 0.25).toFixed(2))))}
+                >
+                  <ZoomOut className="size-3.5" />
+                </Button>
+
+                <button
+                  onClick={() => setZoomLevel(1.0)}
+                  className="px-1.5 text-[11px] font-bold text-slate-200 hover:text-primary transition-colors"
+                  title="Reset Zoom (100%)"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  title="Zoom In (+)"
+                  disabled={zoomLevel >= 2.5}
+                  onClick={() => setZoomLevel((z) => Math.min(2.5, Number((z + 0.25).toFixed(2))))}
+                >
+                  <ZoomIn className="size-3.5" />
                 </Button>
               </div>
 
