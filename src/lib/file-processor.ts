@@ -164,20 +164,27 @@ async function convertToPdf(
 }
 
 async function extractPageCount(pdfPath: string): Promise<number> {
-  const { readFileSync } = await import("node:fs");
-  const pdfBytes = readFileSync(pdfPath);
-  const pdfText = new TextDecoder("latin1").decode(pdfBytes);
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const buffer = await readFile(pdfPath);
+    const pdfText = buffer.toString("binary");
 
-  const countMatches = pdfText.match(/\/Type\s*\/Page(?!s)/g);
+    // 1. Fast O(1) catalog search for /Count <N>
+    const pagesMatch = pdfText.match(/\/Count\s+(\d+)/);
+    if (pagesMatch && pagesMatch[1]) {
+      const count = Number.parseInt(pagesMatch[1], 10);
+      if (count > 0 && count < 2000) {
+        return count;
+      }
+    }
 
-  if (countMatches && countMatches.length > 0) {
-    return countMatches.length;
-  }
-
-  const pagesMatch = pdfText.match(/\/Count\s+(\d+)/);
-
-  if (pagesMatch) {
-    return Number.parseInt(pagesMatch[1], 10);
+    // 2. Fallback count of /Type /Page without unbounded backtracking
+    const countMatches = pdfText.match(/\/Type\s*\/Page(?![sS])/g);
+    if (countMatches && countMatches.length > 0) {
+      return countMatches.length;
+    }
+  } catch (err) {
+    console.error("Gagal menghitung halaman PDF:", err);
   }
 
   return 1;

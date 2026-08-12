@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,20 +22,23 @@ const stageOptions = [
 ];
 
 export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadProps) {
+  const router = useRouter();
   const [selectedStage, setSelectedStage] = useState(
     stageOptions.some((opt) => opt.value === activeStage) ? activeStage : "PRELIMINARY"
   );
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0];
     if (selected) {
       setFile(selected);
+      setUploadProgress(0);
     }
   }
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!file) {
       toast.error("Pilih file PDF, PPT, atau PPTX terlebih dahulu.");
@@ -42,32 +46,51 @@ export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadP
     }
 
     setUploading(true);
+    setUploadProgress(0);
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("stage", selectedStage);
 
-    try {
-      const res = await fetch("/api/admin/questions/upload", {
-        method: "POST",
-        body: formData,
-      });
+    const xhr = new XMLHttpRequest();
 
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        throw new Error(data.error || "Gagal mengunggah file.");
+    // Track upload progress in real-time
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percent);
       }
+    };
 
-      toast.success(`File ${data.file.originalName} berhasil diunggah (${data.file.totalPages} slide).`);
-      setFile(null);
-      if (onUploadSuccess) {
-        onUploadSuccess();
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal mengunggah file.");
-    } finally {
+    xhr.onload = () => {
       setUploading(false);
-    }
+
+      try {
+        const data = JSON.parse(xhr.responseText);
+
+        if (xhr.status >= 200 && xhr.status < 300 && data.ok) {
+          toast.success(
+            `File ${data.file.originalName} berhasil diunggah! (${data.file.totalPages} slide dipetakan).`
+          );
+          setFile(null);
+          setUploadProgress(0);
+          router.refresh();
+          if (onUploadSuccess) onUploadSuccess();
+        } else {
+          toast.error(data.error || "Gagal mengunggah file.");
+        }
+      } catch {
+        toast.error("Gagal memproses respon server.");
+      }
+    };
+
+    xhr.onerror = () => {
+      setUploading(false);
+      toast.error("Terjadi kesalahan jaringan saat mengunggah file.");
+    };
+
+    xhr.open("POST", "/api/admin/questions/upload", true);
+    xhr.send(formData);
   }
 
   return (
@@ -78,7 +101,7 @@ export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadP
           Upload File Soal (PDF / PPT / PPTX)
         </CardTitle>
         <CardDescription>
-          Unggah file materi presentation untuk babak Final & Grand Final. Slide akan dipetakan ke nomor soal.
+          Unggah file materi presentation untuk babak Penyisihan, Final, & Grand Final. Slide akan otomatis dipetakan ke nomor soal.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -117,10 +140,32 @@ export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadP
 
           {file && (
             <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-900">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <FileText className="size-4 text-blue-600 shrink-0" />
                 <span className="font-medium truncate">{file.name}</span>
-                <span className="text-slate-500">({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                <span className="text-slate-500 shrink-0">({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+              </div>
+            </div>
+          )}
+
+          {/* Real-time Upload Progress Bar */}
+          {uploading && (
+            <div className="space-y-2 rounded-xl border border-red-200 bg-red-50/70 p-4 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-xs font-semibold text-red-900">
+                <span className="flex items-center gap-2">
+                  <Loader2 className="size-4 animate-spin text-red-600" />
+                  {uploadProgress < 100
+                    ? `Mengunggah file ke server... (${uploadProgress}%)`
+                    : "Memproses & menyiapkan slide soal..."}
+                </span>
+                <span className="font-mono text-red-700 font-bold">{uploadProgress}%</span>
+              </div>
+
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-red-100 border border-red-200">
+                <div
+                  className="h-full bg-gradient-to-r from-red-600 to-red-700 transition-all duration-200 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                />
               </div>
             </div>
           )}
@@ -130,12 +175,12 @@ export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadP
               type="submit"
               variant="dark"
               disabled={!file || uploading}
-              className="min-w-36"
+              className="min-w-36 font-bold"
             >
               {uploading ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Mengunggah...
+                  {uploadProgress < 100 ? `Mengunggah ${uploadProgress}%` : "Memproses..."}
                 </>
               ) : (
                 <>
