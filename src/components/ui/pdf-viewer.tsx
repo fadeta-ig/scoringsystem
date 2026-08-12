@@ -132,7 +132,7 @@ export function PdfViewer({
   }, [pageNumber, renderPage]);
 
   return (
-    <div className={cn("relative flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden bg-slate-900/30", className)}>
+    <div className={cn("relative flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden bg-transparent", className)}>
       {loading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/90 text-white z-10">
           <Loader2 className="size-8 animate-spin text-primary" />
