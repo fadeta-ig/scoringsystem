@@ -39,6 +39,7 @@ httpServer.keepAliveTimeout = 65000;
 
 const io = new Server(httpServer, {
   path: "/socket.io",
+  maxHttpBufferSize: 1e8, // 100 MB max http buffer size
   cors: {
     origin(origin, callback) {
       if (!origin || allowedOrigins.has(origin)) {

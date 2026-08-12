@@ -70,6 +70,14 @@ async function readStreamToBytes(
 }
 
 export async function POST(request: Request) {
+  const headerFileName = request.headers.get("x-file-name");
+  const headerStage = request.headers.get("x-file-stage");
+
+  // Immediately start reading body stream as TCP chunks arrive to prevent socket stalls
+  const streamPromise = (headerFileName && headerStage)
+    ? readStreamToBytes(request.body)
+    : null;
+
   const operator = await requireOperator();
 
   if (!operator) {
@@ -81,16 +89,13 @@ export async function POST(request: Request) {
   let mimeType = "application/pdf";
   let bytes: Uint8Array;
 
-  const headerFileName = request.headers.get("x-file-name");
-  const headerStage = request.headers.get("x-file-stage");
-
-  if (headerFileName && headerStage) {
-    // Direct Stream Reader Mode (Chunked bypass of Next.js 1MB buffer limit)
+  if (headerFileName && headerStage && streamPromise) {
+    // Direct Stream Reader Mode (Fast & Immune to TCP socket stalls)
     fileName = decodeURIComponent(headerFileName);
     stage = headerStage;
     mimeType = request.headers.get("content-type") || "application/pdf";
 
-    bytes = await readStreamToBytes(request.body);
+    bytes = await streamPromise;
   } else {
     // Multipart FormData Fallback Mode
     const formData = await request.formData();
