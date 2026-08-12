@@ -285,7 +285,13 @@ export async function getLiveState(eventId?: string | null) {
         originalName: activeStageFile.originalName,
         storagePath: activeStageFile.storagePath,
         totalPages: activeStageFile.totalPages,
-        activePageNumber: activeMapping?.pageNumber ?? null,
+        activePageNumber:
+          activeMapping?.pageNumber ??
+          (activeStageFile.totalPages >= activeQuestionNum
+            ? activeQuestionNum
+            : activeStageFile.totalPages > 0
+              ? 1
+              : null),
         activeQuestionNumber: activeQuestionNum,
         activeStatus: compState.questionSlideStatus,
         mappings: activeStageFile.mappings.map((m) => ({

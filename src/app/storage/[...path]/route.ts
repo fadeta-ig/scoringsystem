@@ -30,7 +30,7 @@ export async function GET(
   const requested = path.join(STORAGE_ROOT, ...segments);
   const resolved = path.resolve(requested);
 
-  if (!resolved.startsWith(STORAGE_ROOT + path.sep)) {
+  if (!resolved.toLowerCase().startsWith((STORAGE_ROOT + path.sep).toLowerCase())) {
     return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
   }
 

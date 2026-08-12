@@ -21,11 +21,11 @@ const VALID_STATUSES: QuestionSlideStatus[] = [
 ];
 
 const STATUS_TRANSITIONS: Record<QuestionSlideStatus, QuestionSlideStatus[]> = {
-  PENDING: ["PREVIEW", "LIVE"],
-  PREVIEW: ["LIVE", "PENDING"],
-  LIVE: ["SCORING", "PENDING"],
-  SCORING: ["COMPLETED", "LIVE"],
-  COMPLETED: ["PENDING"],
+  PENDING: ["PREVIEW", "LIVE", "SCORING", "COMPLETED"],
+  PREVIEW: ["LIVE", "SCORING", "PENDING", "COMPLETED"],
+  LIVE: ["SCORING", "PREVIEW", "PENDING", "COMPLETED"],
+  SCORING: ["COMPLETED", "LIVE", "PREVIEW", "PENDING"],
+  COMPLETED: ["PENDING", "PREVIEW", "LIVE", "SCORING"],
 };
 
 async function requireAdminId() {
