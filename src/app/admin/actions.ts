@@ -1190,3 +1190,48 @@ function formatRupiah(value: number) {
     maximumFractionDigits: 0,
   }).format(value);
 }
+
+export async function resetAllCompetitionResults(): Promise<ActionResult> {
+  return performAction(async ({ eventId }) => {
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete all score deltas
+      await tx.scoreDelta.deleteMany({
+        where: { eventId },
+      });
+
+      // 2. Delete all competition actions
+      await tx.competitionAction.deleteMany({
+        where: { eventId },
+      });
+
+      // 3. Reset all team preliminary scores, durations, & session winner flags
+      await tx.team.updateMany({
+        where: { eventId },
+        data: {
+          preliminaryScore: null,
+          completionSeconds: null,
+          isSessionWinner: false,
+          finalOrder: null,
+        },
+      });
+
+      // 4. Reset competition state to initial PRELIMINARY stage
+      await tx.competitionState.update({
+        where: { eventId },
+        data: {
+          stage: "PRELIMINARY",
+          currentQuestion: 1,
+          grandFinalTeamId: null,
+          grandPrize: 0,
+          grandDecisionPending: false,
+          projectionMode: "LIVE",
+          projectionSession: null,
+          projectionMessage: null,
+          questionSlideStatus: "PENDING",
+        },
+      });
+    });
+
+    return "Seluruh skor, riwayat poin, dan status pertandingan berhasil di-reset ke kondisi awal.";
+  });
+}

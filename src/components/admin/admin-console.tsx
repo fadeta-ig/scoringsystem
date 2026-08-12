@@ -48,6 +48,7 @@ import {
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ResetAllButton } from "@/components/admin/reset-all-button";
 import {
   Card,
   CardContent,
@@ -198,15 +199,18 @@ function OperatorHeader({ state }: { state: State }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <HeaderMetric
-            label="Finalis"
-            value={`${state.finalists.length}/4`}
-          />
-          <HeaderMetric
-            label="Aksi terbaru"
-            value={String(state.recentActions.length)}
-          />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:flex">
+            <HeaderMetric
+              label="Finalis"
+              value={`${state.finalists.length}/4`}
+            />
+            <HeaderMetric
+              label="Aksi terbaru"
+              value={String(state.recentActions.length)}
+            />
+          </div>
+          <ResetAllButton />
         </div>
       </CardContent>
     </Card>

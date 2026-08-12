@@ -39,6 +39,7 @@ import {
 } from "@/app/admin/actions";
 import { PdfViewer } from "@/components/ui/pdf-viewer";
 import { AnimatedNumber } from "@/components/ui/animated-number";
+import { ResetAllButton } from "@/components/admin/reset-all-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -243,6 +244,8 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
             <RotateCcw className="size-3.5 mr-1" />
             Undo Aksi
           </Button>
+
+          <ResetAllButton />
         </div>
       </div>
 
