@@ -13,6 +13,7 @@ type QuestionUploadProps = {
 };
 
 const stageOptions = [
+  { value: "PRELIMINARY", label: "Babak Penyisihan" },
   { value: "FINAL_SESSION_1", label: "Final Sesi 1" },
   { value: "FINAL_SESSION_2", label: "Final Sesi 2" },
   { value: "FINAL_SESSION_3", label: "Final Sesi 3" },
@@ -20,7 +21,9 @@ const stageOptions = [
 ];
 
 export function QuestionUpload({ activeStage, onUploadSuccess }: QuestionUploadProps) {
-  const [selectedStage, setSelectedStage] = useState(activeStage);
+  const [selectedStage, setSelectedStage] = useState(
+    stageOptions.some((opt) => opt.value === activeStage) ? activeStage : "PRELIMINARY"
+  );
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 

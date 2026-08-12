@@ -14,10 +14,13 @@ import type { CompetitionStage } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
 const VALID_STAGES: CompetitionStage[] = [
+  "PRELIMINARY",
   "FINAL_SESSION_1",
   "FINAL_SESSION_2",
   "FINAL_SESSION_3",
+  "FINAL_COMPLETE",
   "GRAND_FINAL",
+  "FINISHED",
 ];
 
 async function requireOperator() {
