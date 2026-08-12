@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-
 import { DeleteQuestionFileButton } from "@/components/admin/delete-question-file-button";
 
 type QuestionUploadProps = {
@@ -49,7 +48,7 @@ export function QuestionUpload({
     }
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!file) {
       toast.error("Pilih file PDF, PPT, atau PPTX terlebih dahulu.");
@@ -59,52 +58,81 @@ export function QuestionUpload({
     setUploading(true);
     setUploadProgress(0);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("stage", selectedStage);
+    const CHUNK_SIZE = 512 * 1024; // 512 KB per chunk to bypass 1MB server payload limits
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = `up-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-    const xhr = new XMLHttpRequest();
+    try {
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(file.size, (chunkIndex + 1) * CHUNK_SIZE);
+        const chunk = file.slice(start, end);
 
-    // Track upload progress in real-time
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percent = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(percent);
-      }
-    };
+        const res = await new Promise<{ ok: boolean; data?: any; error?: string }>(
+          (resolve) => {
+            const xhr = new XMLHttpRequest();
 
-    xhr.onload = () => {
-      setUploading(false);
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable) {
+                const chunkLoaded = event.loaded;
+                const totalBytesUploaded = start + chunkLoaded;
+                const percent = Math.min(
+                  99,
+                  Math.round((totalBytesUploaded / file.size) * 100)
+                );
+                setUploadProgress(percent);
+              }
+            };
 
-      try {
-        const data = JSON.parse(xhr.responseText);
+            xhr.onload = () => {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300 && data.ok) {
+                  resolve({ ok: true, data });
+                } else {
+                  resolve({ ok: false, error: data.error || "Gagal mengunggah potongan file." });
+                }
+              } catch {
+                resolve({ ok: false, error: "Gagal memproses respon server." });
+              }
+            };
 
-        if (xhr.status >= 200 && xhr.status < 300 && data.ok) {
+            xhr.onerror = () => {
+              resolve({ ok: false, error: "Terjadi kesalahan jaringan saat mengunggah." });
+            };
+
+            xhr.open("POST", "/api/admin/questions/upload-chunk", true);
+            xhr.setRequestHeader("x-upload-id", uploadId);
+            xhr.setRequestHeader("x-chunk-index", String(chunkIndex));
+            xhr.setRequestHeader("x-total-chunks", String(totalChunks));
+            xhr.setRequestHeader("x-file-name", encodeURIComponent(file.name));
+            xhr.setRequestHeader("x-file-stage", selectedStage);
+            xhr.setRequestHeader("x-total-size", String(file.size));
+            xhr.setRequestHeader("content-type", file.type || "application/pdf");
+            xhr.send(chunk);
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(res.error || `Gagal mengunggah potongan ${chunkIndex + 1}.`);
+        }
+
+        if (chunkIndex === totalChunks - 1 && res.data?.file) {
+          setUploadProgress(100);
           toast.success(
-            `File ${data.file.originalName} berhasil diunggah! (${data.file.totalPages} slide dipetakan).`
+            `File ${res.data.file.originalName} berhasil diunggah! (${res.data.file.totalPages} slide dipetakan).`
           );
           setFile(null);
           setUploadProgress(0);
           router.refresh();
           if (onUploadSuccess) onUploadSuccess();
-        } else {
-          toast.error(data.error || "Gagal mengunggah file.");
         }
-      } catch {
-        toast.error("Gagal memproses respon server.");
       }
-    };
-
-    xhr.onerror = () => {
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal mengunggah file.");
+    } finally {
       setUploading(false);
-      toast.error("Terjadi kesalahan jaringan saat mengunggah file.");
-    };
-
-    xhr.open("POST", "/api/admin/questions/upload", true);
-    xhr.setRequestHeader("x-file-name", encodeURIComponent(file.name));
-    xhr.setRequestHeader("x-file-stage", selectedStage);
-    xhr.setRequestHeader("content-type", file.type || "application/pdf");
-    xhr.send(file);
+    }
   }
 
   return (
@@ -140,7 +168,7 @@ export function QuestionUpload({
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-slate-600">
-                File Presentation (Maks. 20MB)
+                File Presentation (Maks. 50MB)
               </label>
               <input
                 type="file"
@@ -195,7 +223,7 @@ export function QuestionUpload({
                 <span className="flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin text-red-600" />
                   {uploadProgress < 100
-                    ? `Mengunggah file ke server... (${uploadProgress}%)`
+                    ? `Mengunggah potongan file ke server... (${uploadProgress}%)`
                     : "Memproses & menyiapkan slide soal..."}
                 </span>
                 <span className="font-mono text-red-700 font-bold">{uploadProgress}%</span>
