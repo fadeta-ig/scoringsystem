@@ -82,24 +82,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const existing = await prisma.questionFile.findUnique({
-      where: {
-        eventId_stage: { eventId: event.id, stage: stage as CompetitionStage },
-      },
-    });
-
-    if (existing) {
-      const { removeQuestionFiles } = await import("@/lib/file-processor");
-      await removeQuestionFiles(existing.id);
-
-      await prisma.questionMapping.deleteMany({
-        where: { fileId: existing.id },
-      });
-      await prisma.questionFile.delete({
-        where: { id: existing.id },
-      });
-    }
-
+    // 1. Process uploaded file into a brand new unique folder FIRST
     const fileId = `qf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const processed = await processUploadedFile(
       fileId,
@@ -108,28 +91,60 @@ export async function POST(request: Request) {
       file.type,
     );
 
-    const questionFile = await prisma.questionFile.create({
-      data: {
-        id: fileId,
-        eventId: event.id,
-        originalName: file.name,
-        storagePath: processed.storagePath,
-        mimeType: processed.mimeType,
-        totalPages: processed.totalPages,
-        stage: stage as CompetitionStage,
-        mappings: {
-          create: Array.from({ length: processed.totalPages }, (_, index) => ({
-            pageNumber: index + 1,
-            questionNumber: index + 1,
-          })),
-        },
+    // 2. Check for existing question file record for this stage
+    const existing = await prisma.questionFile.findUnique({
+      where: {
+        eventId_stage: { eventId: event.id, stage: stage as CompetitionStage },
       },
-      include: {
-        mappings: {
-          orderBy: { pageNumber: "asc" },
-        },
-      },
+      select: { id: true },
     });
+
+    // 3. Atomically replace database records inside a single transaction
+    const questionFile = await prisma.$transaction(async (tx) => {
+      if (existing) {
+        await tx.questionMapping.deleteMany({
+          where: { fileId: existing.id },
+        });
+        await tx.questionFile.delete({
+          where: { id: existing.id },
+        });
+      }
+
+      return tx.questionFile.create({
+        data: {
+          id: fileId,
+          eventId: event.id,
+          originalName: file.name,
+          storagePath: processed.storagePath,
+          mimeType: processed.mimeType,
+          totalPages: processed.totalPages,
+          stage: stage as CompetitionStage,
+          mappings: {
+            create: Array.from({ length: processed.totalPages }, (_, index) => ({
+              pageNumber: index + 1,
+              questionNumber: index + 1,
+            })),
+          },
+        },
+        include: {
+          mappings: {
+            orderBy: { pageNumber: "asc" },
+          },
+        },
+      });
+    });
+
+    // 4. Asynchronously remove old files from disk without blocking response
+    if (existing) {
+      setTimeout(async () => {
+        try {
+          const { removeQuestionFiles } = await import("@/lib/file-processor");
+          await removeQuestionFiles(existing.id);
+        } catch {
+          // Ignore background cleanup errors
+        }
+      }, 1000);
+    }
 
     await emitLiveState(event.id);
 
