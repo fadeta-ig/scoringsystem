@@ -293,12 +293,14 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
         {/* Right Main Stage: Viewer + Action Bar + Scoring Panel */}
         <div className="flex flex-col gap-4">
           {/* Presentation Viewer Area */}
-          <Card className="relative overflow-hidden border-slate-300 bg-slate-950 min-h-[420px]">
-            <PdfViewer
-              url={qv.storagePath}
-              pageNumber={selectedPage}
-              className="h-[440px] w-full"
-            />
+          <Card className="relative overflow-hidden rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 min-h-[440px] shadow-xl">
+            <div className="flex h-[440px] w-full items-center justify-center p-3">
+              <PdfViewer
+                url={qv.storagePath}
+                pageNumber={selectedPage}
+                className="max-h-full max-w-full rounded-lg"
+              />
+            </div>
 
             {/* Slide Navigation Overlay Controls */}
             <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2 backdrop-blur-md text-white text-xs">

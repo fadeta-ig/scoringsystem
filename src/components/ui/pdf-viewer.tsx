@@ -41,7 +41,8 @@ export function PdfViewer({
 
       if (!context) return;
 
-      const viewport = page.getViewport({ scale: 1.5 });
+      // Render at high DPI scale for crisp text on proyektor / 4K displays
+      const viewport = page.getViewport({ scale: 2.5 });
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
