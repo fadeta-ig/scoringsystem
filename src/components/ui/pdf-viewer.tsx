@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -131,7 +132,7 @@ export function PdfViewer({
   }, [pageNumber, renderPage]);
 
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden bg-slate-900 ${className}`}>
+    <div className={cn("relative flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden bg-slate-900/30", className)}>
       {loading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/90 text-white z-10">
           <Loader2 className="size-8 animate-spin text-primary" />
@@ -152,7 +153,14 @@ export function PdfViewer({
       ) : (
         <canvas
           ref={canvasRef}
-          className="max-h-full max-w-full object-contain shadow-2xl transition-all duration-300"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "100%",
+            width: "auto",
+            height: "auto",
+            objectFit: "contain",
+          }}
+          className="shrink-0 block shadow-2xl transition-all duration-300"
         />
       )}
     </div>

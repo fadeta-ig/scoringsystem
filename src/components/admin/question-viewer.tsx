@@ -309,7 +309,7 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
                 <PdfViewer
                   url={qv.storagePath}
                   pageNumber={selectedPage}
-                  className="max-h-[420px] max-w-full rounded-lg shadow-2xl"
+                  className="h-[420px] w-full rounded-lg shadow-2xl"
                 />
               </div>
             </div>

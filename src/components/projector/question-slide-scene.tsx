@@ -84,19 +84,19 @@ export function QuestionSlideScene({ state }: { state: State }) {
       </div>
 
       {/* Main Presentation Stage Canvas Container */}
-      <div className="relative z-10 flex flex-1 items-center justify-center p-3 sm:p-5 overflow-hidden">
-        <div className="relative flex max-h-full max-w-full items-center justify-center rounded-xl border border-white/10 bg-slate-900/60 p-2 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300">
+      <div className="relative z-10 flex flex-1 min-h-0 min-w-0 items-center justify-center p-2 sm:p-4 overflow-hidden">
+        <div className="relative flex h-full w-full max-h-full max-w-full items-center justify-center rounded-xl border border-white/10 bg-slate-900/60 p-2 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-300 overflow-hidden">
           {/* Subtle Technical Corner Accents */}
-          <div className="pointer-events-none absolute -top-1 -left-1 size-3 border-t-2 border-l-2 border-red-500/60 rounded-tl-sm" />
-          <div className="pointer-events-none absolute -top-1 -right-1 size-3 border-t-2 border-r-2 border-red-500/60 rounded-tr-sm" />
-          <div className="pointer-events-none absolute -bottom-1 -left-1 size-3 border-b-2 border-l-2 border-red-500/60 rounded-bl-sm" />
-          <div className="pointer-events-none absolute -bottom-1 -right-1 size-3 border-b-2 border-r-2 border-red-500/60 rounded-br-sm" />
+          <div className="pointer-events-none absolute -top-1 -left-1 size-3 border-t-2 border-l-2 border-red-500/60 rounded-tl-sm z-20" />
+          <div className="pointer-events-none absolute -top-1 -right-1 size-3 border-t-2 border-r-2 border-red-500/60 rounded-tr-sm z-20" />
+          <div className="pointer-events-none absolute -bottom-1 -left-1 size-3 border-b-2 border-l-2 border-red-500/60 rounded-bl-sm z-20" />
+          <div className="pointer-events-none absolute -bottom-1 -right-1 size-3 border-b-2 border-r-2 border-red-500/60 rounded-br-sm z-20" />
 
           {/* Rendered Slide */}
           <PdfViewer
             url={qv.storagePath}
             pageNumber={qv.activePageNumber}
-            className="max-h-[72vh] w-auto rounded-lg overflow-hidden"
+            className="h-full w-full rounded-lg overflow-hidden flex items-center justify-center"
           />
         </div>
       </div>
