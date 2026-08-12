@@ -196,3 +196,41 @@ export async function switchToQuestionSlideMode(): Promise<QuestionActionResult>
     };
   }
 }
+
+export async function setCurrentQuestion(
+  formData: FormData,
+): Promise<QuestionActionResult> {
+  try {
+    await requireAdminId();
+    const eventId = await getEventIdOrThrow();
+    const targetQNum = parseInt(formData.get("questionNumber") as string, 10);
+
+    if (isNaN(targetQNum) || targetQNum < 1) {
+      throw new Error("Nomor soal tidak valid.");
+    }
+
+    await prisma.competitionState.update({
+      where: { eventId },
+      data: {
+        currentQuestion: targetQNum,
+        questionSlideStatus: "LIVE",
+        projectionMode: "QUESTION_SLIDE",
+      },
+    });
+
+    await refreshAll(eventId);
+
+    return {
+      ok: true,
+      message: `Berhasil berpindah ke Soal ${targetQNum} (Tayang Live di Proyektor).`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Gagal mengganti nomor soal.",
+    };
+  }
+}

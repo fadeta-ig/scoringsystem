@@ -29,6 +29,7 @@ import {
   setQuestionSlideStatus,
   resetSlideForNextQuestion,
   switchToQuestionSlideMode,
+  setCurrentQuestion,
 } from "@/app/admin/question-actions";
 import {
   submitSession1Result,
@@ -205,6 +206,26 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
     });
   }
 
+  function handleSwitchQuestion(qNum: number) {
+    if (qNum < 1) return;
+    const formData = new FormData();
+    formData.append("questionNumber", String(qNum));
+
+    startTransition(async () => {
+      const res = await setCurrentQuestion(formData);
+      if (res.ok) {
+        toast.success(res.message);
+        const mappedPage = mappings.find((m) => m.questionNumber === qNum)?.pageNumber;
+        if (mappedPage) {
+          setSelectedPage(mappedPage);
+        }
+        router.refresh();
+      } else {
+        toast.error(res.message);
+      }
+    });
+  }
+
   const mappings = qv?.mappings || [];
   const unmappedCount = mappings.filter((m) => m.questionNumber === null).length;
 
@@ -236,6 +257,38 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
               {qv ? `File: ${qv.originalName} · ${qv.totalPages} Slide` : "Belum ada file soal diunggah"}
             </p>
           </div>
+        </div>
+
+        {/* Quick Question Stepper Navigator */}
+        <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50/80 p-1.5 shadow-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-bold bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+            onClick={() => handleSwitchQuestion(currentQNum - 1)}
+            disabled={isPending || currentQNum <= 1}
+            title="Pindah ke soal sebelumnya (Tayang Live)"
+          >
+            <ChevronLeft className="size-4 mr-0.5" />
+            Soal Prev
+          </Button>
+
+          <div className="px-3 text-center">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Navigasi Soal</span>
+            <span className="text-xs font-extrabold text-red-700 font-mono">Soal {currentQNum}</span>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2.5 text-xs font-bold bg-white text-red-700 border-red-200 hover:bg-red-50"
+            onClick={() => handleSwitchQuestion(currentQNum + 1)}
+            disabled={isPending}
+            title="Pindah ke soal berikutnya (Tayang Live)"
+          >
+            Soal Next
+            <ChevronRight className="size-4 ml-0.5" />
+          </Button>
         </div>
 
         {/* Global Sync Controls */}
@@ -372,17 +425,20 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
                     const isSelected = m.pageNumber === selectedPage;
 
                     return (
-                      <button
+                      <div
                         key={m.pageNumber}
-                        onClick={() => setSelectedPage(m.pageNumber)}
                         className={cn(
-                          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-semibold transition-all border",
+                          "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs font-semibold transition-all border gap-2",
                           isCurrentQuestion && "bg-red-50 text-red-900 font-bold border-red-300 shadow-xs",
                           !isCurrentQuestion && isSelected && "bg-slate-100 text-slate-900 border-slate-300",
-                          !isCurrentQuestion && !isSelected && "border-transparent hover:bg-slate-50 text-slate-700"
+                          !isCurrentQuestion && !isSelected && "border-slate-100 hover:bg-slate-50 text-slate-700"
                         )}
                       >
-                        <div className="flex items-center gap-2 min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPage(m.pageNumber)}
+                          className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                        >
                           <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">
                             P{m.pageNumber}
                           </span>
@@ -391,16 +447,31 @@ export function QuestionViewer({ state }: QuestionViewerProps) {
                           ) : (
                             <span className="text-slate-400 italic font-normal">(Slide {m.pageNumber})</span>
                           )}
-                        </div>
+                        </button>
 
-                        {isCurrentQuestion ? (
-                          <span className="flex size-5 items-center justify-center rounded-full bg-red-600 text-[10px] text-white font-bold shrink-0">
-                            ●
-                          </span>
-                        ) : m.questionNumber && m.questionNumber < currentQNum ? (
-                          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                        ) : null}
-                      </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isCurrentQuestion ? (
+                            <span className="flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] text-white font-bold shrink-0">
+                              <MonitorPlay className="size-3" /> Live
+                            </span>
+                          ) : isMapped ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-1.5 text-[10px] text-red-700 hover:bg-red-100 font-bold"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSwitchQuestion(m.questionNumber!);
+                              }}
+                              disabled={isPending}
+                              title={`Pindah & Tayangkan Soal ${m.questionNumber} ke Proyektor`}
+                            >
+                              <MonitorPlay className="size-3 mr-1" />
+                              Tayangkan
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
                     );
                   })}
                 </CardContent>
