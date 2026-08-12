@@ -45,15 +45,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const formData = await request.formData();
-  const file = formData.get("file");
-  const stage = formData.get("stage") as string;
+  let fileName = "soal.pdf";
+  let stage = "PRELIMINARY";
+  let mimeType = "application/pdf";
+  let bytes: Uint8Array;
 
-  if (!(file instanceof File)) {
-    return NextResponse.json(
-      { error: "Pilih file terlebih dahulu." },
-      { status: 400 },
-    );
+  const headerFileName = request.headers.get("x-file-name");
+  const headerStage = request.headers.get("x-file-stage");
+
+  if (headerFileName && headerStage) {
+    // Direct Binary ArrayBuffer Mode (Fast & Immune to multipart 41% deadlock)
+    fileName = decodeURIComponent(headerFileName);
+    stage = headerStage;
+    mimeType = request.headers.get("content-type") || "application/pdf";
+
+    const arrayBuffer = await request.arrayBuffer();
+    bytes = new Uint8Array(arrayBuffer);
+  } else {
+    // Multipart FormData Fallback Mode
+    const formData = await request.formData();
+    const file = formData.get("file");
+    stage = (formData.get("stage") as string) || "PRELIMINARY";
+
+    if (!(file instanceof File)) {
+      return NextResponse.json(
+        { error: "Pilih file terlebih dahulu." },
+        { status: 400 },
+      );
+    }
+
+    fileName = file.name;
+    mimeType = file.type;
+    bytes = new Uint8Array(await file.arrayBuffer());
   }
 
   if (!stage || !VALID_STAGES.includes(stage as CompetitionStage)) {
@@ -64,11 +87,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    validateFileType(file.type);
-    validateFileSize(file.size);
-
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    validateMagicBytes(bytes, file.type);
+    validateFileType(mimeType, fileName);
+    validateFileSize(bytes.length);
+    validateMagicBytes(bytes, mimeType);
 
     const event = await prisma.event.findFirst({
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -87,8 +108,8 @@ export async function POST(request: Request) {
     const processed = await processUploadedFile(
       fileId,
       bytes,
-      file.name,
-      file.type,
+      fileName,
+      mimeType,
     );
 
     // 2. Check for existing question file record for this stage
@@ -114,7 +135,7 @@ export async function POST(request: Request) {
         data: {
           id: fileId,
           eventId: event.id,
-          originalName: file.name,
+          originalName: fileName,
           storagePath: processed.storagePath,
           mimeType: processed.mimeType,
           totalPages: processed.totalPages,

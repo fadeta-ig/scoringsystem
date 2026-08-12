@@ -40,8 +40,17 @@ export type ProcessedFile = {
   mimeType: string;
 };
 
-export function validateFileType(mimeType: string): string {
-  const extension = ACCEPTED_MIME_TYPES[mimeType];
+export function validateFileType(mimeType: string, fileName?: string): string {
+  let resolvedMime = mimeType;
+
+  if (!ACCEPTED_MIME_TYPES[resolvedMime] && fileName) {
+    const ext = path.extname(fileName).toLowerCase();
+    if (ext === ".pdf") resolvedMime = "application/pdf";
+    else if (ext === ".pptx") resolvedMime = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    else if (ext === ".ppt") resolvedMime = "application/vnd.ms-powerpoint";
+  }
+
+  const extension = ACCEPTED_MIME_TYPES[resolvedMime];
 
   if (!extension) {
     throw new Error(

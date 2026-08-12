@@ -101,7 +101,10 @@ export function QuestionUpload({
     };
 
     xhr.open("POST", "/api/admin/questions/upload", true);
-    xhr.send(formData);
+    xhr.setRequestHeader("x-file-name", encodeURIComponent(file.name));
+    xhr.setRequestHeader("x-file-stage", selectedStage);
+    xhr.setRequestHeader("content-type", file.type || "application/pdf");
+    xhr.send(file);
   }
 
   return (
