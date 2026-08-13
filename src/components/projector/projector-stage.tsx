@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type ReactNode,
 } from "react";
 import {
   Award,
@@ -17,7 +16,6 @@ import {
   Sparkles,
   Target,
   Trophy,
-  Users,
   Wifi,
   WifiOff,
 } from "lucide-react";
@@ -90,8 +88,8 @@ export function ProjectorStage({
     return (
       <main className="projection-shell independence-stage grid min-h-screen place-items-center text-[#202124]">
         <div className="scene-enter text-center">
-          <IndependenceLogo className="mx-auto size-32" />
-          <h1 className="display-type mt-6 text-4xl">Event belum tersedia</h1>
+          <IndependenceLogo className="mx-auto size-24 sm:size-32" />
+          <h1 className="display-type mt-4 text-3xl sm:text-4xl font-bold">Event belum tersedia</h1>
         </div>
       </main>
     );
@@ -107,22 +105,22 @@ export function ProjectorStage({
   ].join("-");
 
   return (
-    <main className="projection-shell independence-stage flex h-screen min-h-[620px] flex-col overflow-hidden text-[#202124]">
+    <main className="projection-shell independence-stage flex h-screen w-screen min-h-[520px] flex-col overflow-hidden text-[#202124]">
       <div className="independence-grid" aria-hidden="true" />
       <div className="broadcast-rail" aria-hidden="true" />
       <ProjectionHeader state={state} connected={connected} />
       <div
         key={sceneKey}
-        className="scene-enter relative z-10 flex min-h-0 flex-1 flex-col p-[clamp(14px,1.7vw,30px)]"
+        className="scene-enter relative z-10 flex min-h-0 flex-1 flex-col p-[clamp(8px,1vw,16px)] overflow-hidden"
       >
         <ProjectionScene state={state} />
       </div>
-      <footer className="relative z-10 flex items-center justify-between border-t border-[#dedede] bg-white px-[clamp(16px,2.2vw,38px)] py-2.5 text-[clamp(10px,.82vw,14px)] text-[#626262]">
-        <span className="flex items-center gap-2">
-          <span className="h-1.5 w-8 bg-[#ed1c24]" />
+      <footer className="relative z-10 flex shrink-0 items-center justify-between border-t border-[#dedede] bg-white/95 px-[clamp(14px,1.8vw,32px)] py-1.5 text-[clamp(10px,.75vw,13px)] text-[#626262] shadow-xs">
+        <span className="flex items-center gap-2 font-medium">
+          <span className="h-1.5 w-6 bg-[#ed1c24]" />
           PT Wijaya Inovasi Gemilang
         </span>
-        <span className="tracking-[0.16em] text-[#b5121b]">
+        <span className="font-semibold tracking-[0.16em] text-[#b5121b]">
           HUT RI KE-81 · 1945—2026
         </span>
       </footer>
@@ -195,33 +193,33 @@ function ProjectionHeader({
   connected: boolean;
 }) {
   return (
-    <header className="relative z-20 border-b border-[#dedede] bg-white px-[clamp(16px,2.2vw,38px)] py-[clamp(10px,1vw,16px)]">
-      <div className="flex items-center justify-between gap-6">
-        <div className="flex min-w-0 items-center gap-[clamp(12px,1.35vw,22px)]">
-          <IndependenceLogo className="size-[clamp(58px,5.2vw,84px)] shrink-0" />
-          <div className="h-12 w-px shrink-0 bg-[#dedede]" />
+    <header className="relative z-20 shrink-0 border-b border-[#dedede] bg-white/95 px-[clamp(14px,1.8vw,32px)] py-[clamp(6px,.6vw,10px)] backdrop-blur-xs">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-[clamp(10px,1vw,18px)]">
+          <IndependenceLogo className="size-[clamp(38px,3.4vw,56px)] shrink-0" />
+          <div className="h-8 w-px shrink-0 bg-[#dedede]" />
           <div className="min-w-0">
-            <p className="truncate text-[clamp(10px,.86vw,14px)] tracking-[0.18em] text-[#b5121b]">
+            <p className="truncate text-[clamp(9px,.72vw,12px)] font-bold tracking-[0.18em] text-[#b5121b]">
               PT WIJAYA INOVASI GEMILANG · HUT RI KE-81
             </p>
-            <h1 className="display-type truncate text-[clamp(26px,2.7vw,46px)] leading-[.95] tracking-tight text-[#181818]">
+            <h1 className="display-type truncate text-[clamp(20px,2.2vw,36px)] leading-tight tracking-tight text-[#181818]">
               {projectionTitle(state)}
             </h1>
-            <p className="truncate text-[clamp(10px,.82vw,13px)] text-[#747474]">
+            <p className="truncate text-[clamp(9px,.72vw,12px)] text-[#747474]">
               {state.event.name} · {state.flow.shortLabel}
             </p>
           </div>
         </div>
         <div
           className={cn(
-            "flex shrink-0 items-center gap-2 border px-4 py-2 text-[clamp(11px,.9vw,14px)]",
+            "flex shrink-0 items-center gap-1.5 rounded border px-3 py-1 text-[clamp(10px,.8vw,13px)] font-semibold shadow-2xs",
             connected
               ? "border-emerald-200 bg-emerald-50 text-emerald-700"
               : "border-amber-200 bg-amber-50 text-amber-700",
           )}
         >
           <span className={cn("live-orb", connected && "is-live")} />
-          {connected ? <Wifi size={16} /> : <WifiOff size={16} />}
+          {connected ? <Wifi size={14} /> : <WifiOff size={14} />}
           {connected ? "Realtime" : "Menyambungkan"}
         </div>
       </div>
@@ -231,24 +229,24 @@ function ProjectionHeader({
 
 function BreakScene({ state }: { state: State }) {
   return (
-    <section className="relative flex flex-1 items-center overflow-hidden border border-[#dedede] bg-white">
+    <section className="relative flex flex-1 items-center overflow-hidden rounded-xl border border-[#dedede] bg-white shadow-sm">
       <div className="break-red-block" aria-hidden="true" />
-      <div className="relative z-10 grid w-full grid-cols-[minmax(240px,.72fr)_minmax(0,1.28fr)] items-center gap-[clamp(28px,5vw,92px)] px-[clamp(28px,6vw,110px)]">
+      <div className="relative z-10 grid w-full grid-cols-[minmax(200px,.68fr)_minmax(0,1.32fr)] items-center gap-[clamp(20px,3.5vw,60px)] px-[clamp(20px,4vw,80px)]">
         <div className="motion-float mx-auto">
-          <IndependenceLogo className="size-[clamp(180px,22vw,340px)]" />
+          <IndependenceLogo className="size-[clamp(140px,16vw,260px)]" />
         </div>
         <div>
-          <p className="text-[clamp(11px,1vw,16px)] tracking-[0.36em] text-[#b5121b]">
+          <p className="text-[clamp(10px,.85vw,14px)] font-bold tracking-[0.36em] text-[#b5121b]">
             INTERMISSION
           </p>
-          <h2 className="display-type mt-4 max-w-5xl text-[clamp(42px,5.5vw,88px)] leading-[.98] text-[#191919]">
+          <h2 className="display-type mt-2 max-w-4xl text-[clamp(32px,4vw,68px)] leading-[1.02] text-[#191919]">
             {state.competition.projectionMessage ||
               "Acara akan segera dilanjutkan."}
           </h2>
-          <div className="mt-9 h-1 w-56 overflow-hidden bg-[#ececec]">
+          <div className="mt-6 h-1 w-48 overflow-hidden bg-[#ececec] rounded-full">
             <div className="break-progress h-full w-1/2 bg-[#ed1c24]" />
           </div>
-          <p className="mt-6 text-[clamp(13px,1.15vw,19px)] text-[#747474]">
+          <p className="mt-4 text-[clamp(12px,1vw,16px)] text-[#747474]">
             Tetap bersama kami · HUT Republik Indonesia Ke-81
           </p>
         </div>
@@ -259,55 +257,55 @@ function BreakScene({ state }: { state: State }) {
 
 function PreliminaryLiveScene({ state }: { state: State }) {
   return (
-    <section className="flex flex-1 flex-col">
+    <section className="flex flex-1 flex-col min-h-0">
       <SceneIntro
         eyebrow="Babak Penyisihan"
         title="Empat sesi · Empat tiket menuju Final"
         description="Peringkat diperbarui langsung dari meja operator."
       />
-      <div className="mt-[clamp(14px,1.6vw,26px)] grid min-h-0 flex-1 grid-cols-4 gap-[clamp(8px,1vw,18px)]">
+      <div className="mt-2.5 grid min-h-0 flex-1 grid-cols-4 gap-[clamp(6px,.9vw,14px)]">
         {state.preliminarySessions.map((session, sessionIndex) => (
           <article
             key={session.sessionNumber}
-            className="team-reveal broadcast-card overflow-hidden"
+            className="team-reveal broadcast-card flex flex-col overflow-hidden rounded-lg border border-[#dedede] bg-white shadow-xs"
             style={delayStyle(sessionIndex)}
           >
-            <header className="flex items-center justify-between border-b border-[#e0e0e0] bg-[#fafafa] px-[clamp(12px,1.2vw,20px)] py-[clamp(10px,1vw,16px)]">
+            <header className="flex shrink-0 items-center justify-between border-b border-[#e0e0e0] bg-[#fafafa] px-[clamp(10px,1vw,16px)] py-[clamp(8px,.8vw,12px)]">
               <div>
-                <p className="text-[clamp(9px,.75vw,12px)] tracking-[0.16em] text-[#b5121b]">
+                <p className="text-[clamp(8px,.7vw,11px)] font-bold tracking-[0.16em] uppercase text-[#b5121b]">
                   PENYISIHAN
                 </p>
-                <h2 className="display-type text-[clamp(18px,1.7vw,28px)]">
+                <h2 className="display-type text-[clamp(16px,1.4vw,24px)] font-bold text-[#181818]">
                   Sesi {session.sessionNumber}
                 </h2>
               </div>
               {session.winner ? (
-                <CheckCircle2 className="text-emerald-600" />
+                <CheckCircle2 className="size-5 text-emerald-600" />
               ) : (
-                <Radio className="text-[#8a8a8a]" />
+                <Radio className="size-5 text-[#8a8a8a]" />
               )}
             </header>
-            <div>
+            <div className="flex flex-1 flex-col justify-around min-h-0 overflow-y-auto">
               {session.entries.map((team) => (
                 <div
                   key={team.id}
                   className={cn(
-                    "grid grid-cols-[28px_34px_minmax(0,1fr)_auto] items-center gap-2 border-b border-[#ededed] px-[clamp(8px,.8vw,14px)] py-[clamp(7px,.68vw,11px)] last:border-b-0",
-                    team.isWinner && "bg-emerald-50",
+                    "grid grid-cols-[24px_32px_minmax(0,1fr)_auto] items-center gap-2 border-b border-[#ededed] px-[clamp(8px,.8vw,12px)] py-[clamp(5px,.5vw,9px)] last:border-b-0",
+                    team.isWinner && "bg-emerald-50/80 font-semibold",
                   )}
                 >
-                  <span className="text-center text-[clamp(11px,.95vw,15px)] text-[#868686]">
+                  <span className="text-center text-[clamp(10px,.8vw,13px)] font-semibold text-[#868686]">
                     {team.rank ? `#${team.rank}` : "—"}
                   </span>
                   <TeamAvatar team={team} size="sm" />
-                  <span className="truncate text-[clamp(12px,1vw,17px)] font-medium text-[#202020]">
+                  <span className="truncate text-[clamp(11px,.88vw,15px)] font-medium text-[#202020]">
                     {team.name}
                   </span>
                   <span className="text-right">
-                    <span className="score-type block text-[clamp(14px,1.2vw,20px)] tabular-nums text-[#1b1b1b]">
+                    <span className="score-type block text-[clamp(13px,1vw,18px)] font-bold tabular-nums text-[#1b1b1b]">
                       {team.score ?? "—"}
                     </span>
-                    <span className="block text-[clamp(8px,.65vw,11px)] text-[#858585]">
+                    <span className="block text-[clamp(8px,.6vw,10px)] text-[#858585]">
                       {formatDuration(team.completionSeconds)}
                     </span>
                   </span>
@@ -328,49 +326,64 @@ function PreliminaryResultsScene({ state }: { state: State }) {
   }));
 
   return (
-    <section className="flex flex-1 flex-col">
+    <section className="flex flex-1 flex-col min-h-0">
       <SceneIntro
         eyebrow="Hasil Babak Penyisihan"
         title="Empat tim melaju ke Babak Final"
         description="Masing-masing tim merupakan pemenang dari satu sesi penyisihan."
       />
-      <div className="mt-[clamp(18px,2vw,34px)] grid flex-1 grid-cols-4 gap-[clamp(10px,1.3vw,22px)]">
+      <div className="mt-2.5 grid flex-1 min-h-0 grid-cols-4 gap-[clamp(8px,1.1vw,16px)]">
         {winners.map(({ sessionNumber, team }, index) => (
           <article
             key={sessionNumber}
-            className="team-reveal result-card relative min-h-[46vh] overflow-hidden border border-[#dedede] bg-white"
+            className="team-reveal result-card relative flex flex-col justify-between overflow-hidden border border-[#dedede] bg-white rounded-lg shadow-sm"
             style={delayStyle(index)}
           >
-            {team?.photoPath ? (
-              <Image
-                src={team.photoPath}
-                alt={`Foto ${team.name}`}
-                fill
-                sizes="25vw"
-                className="object-cover"
-                unoptimized
-              />
-            ) : team ? (
-              <div className="absolute inset-0 grid place-items-center bg-[#fafafa]">
-                <TeamAvatar team={team} size="hero" />
+            {/* Top Media / Avatar Container */}
+            <div className="relative flex h-[52%] w-full items-center justify-center overflow-hidden border-b border-[#ececec] bg-[#fafafa]">
+              {team?.photoPath ? (
+                <Image
+                  src={team.photoPath}
+                  alt={`Foto ${team.name}`}
+                  fill
+                  sizes="25vw"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : team ? (
+                <div className="p-2">
+                  <TeamAvatar team={team} size="hero" />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-slate-300">
+                  <Medal className="size-16 opacity-30" />
+                </div>
+              )}
+              <div className="winner-photo-shade pointer-events-none absolute inset-0" />
+              <span className="absolute left-2.5 top-2.5 z-10 grid size-8 place-items-center rounded-md border border-red-200 bg-white/95 text-[#ed1c24] shadow-xs">
+                <Medal size={16} />
+              </span>
+            </div>
+
+            {/* Bottom Content Info Container */}
+            <div className="relative flex flex-1 flex-col justify-between p-[clamp(10px,1.2vw,18px)] bg-white min-w-0">
+              <div className="min-w-0">
+                <p className="text-[clamp(9px,.75vw,12px)] font-bold tracking-[0.16em] uppercase text-[#b5121b]">
+                  PEMENANG SESI {sessionNumber}
+                </p>
+                <h3 className="display-type mt-1 text-[clamp(18px,1.9vw,32px)] leading-tight tracking-tight text-[#171717] font-bold line-clamp-2 break-words">
+                  {team?.name ?? "Menunggu hasil"}
+                </h3>
               </div>
-            ) : (
-              <div className="absolute inset-0 bg-[#fafafa]" />
-            )}
-            <div className="winner-photo-shade absolute inset-0" />
-            <div className="relative flex h-full flex-col justify-end p-[clamp(16px,2vw,32px)]">
-              <Medal className="mb-auto size-[clamp(34px,4vw,62px)] text-[#ed1c24]" />
-              <p className="text-[clamp(10px,.9vw,14px)] tracking-[0.18em] text-[#b5121b]">
-                PEMENANG SESI {sessionNumber}
-              </p>
-              <h3 className="display-type mt-2 text-[clamp(27px,3vw,50px)] leading-none text-[#171717]">
-                {team?.name ?? "Menunggu hasil"}
-              </h3>
               {team ? (
-                <p className="mt-3 text-[clamp(12px,1.05vw,17px)] text-[#5e5e5e]">
+                <p className="mt-1 text-[clamp(10px,.85vw,13px)] font-medium text-[#5e5e5e]">
                   {team.score} poin · {formatDuration(team.completionSeconds)}
                 </p>
-              ) : null}
+              ) : (
+                <p className="mt-1 text-[clamp(10px,.85vw,13px)] text-[#888]">
+                  Belum ditentukan
+                </p>
+              )}
             </div>
           </article>
         ))}
@@ -384,7 +397,7 @@ function QualifiersScene({ state }: { state: State }) {
   const isGrandSelection = Boolean(selectedId);
 
   return (
-    <section className="flex flex-1 flex-col">
+    <section className="flex flex-1 flex-col min-h-0">
       <SceneIntro
         eyebrow={isGrandSelection ? "Menuju Grand Final" : "Meet The Finalists"}
         title={
@@ -398,7 +411,7 @@ function QualifiersScene({ state }: { state: State }) {
             : "Skor Babak Final dimulai kembali dari nol."
         }
       />
-      <div className="mt-[clamp(18px,2vw,34px)] grid flex-1 grid-cols-4 gap-[clamp(10px,1.3vw,22px)]">
+      <div className="mt-2.5 grid flex-1 min-h-0 grid-cols-4 gap-[clamp(8px,1.1vw,16px)]">
         {state.finalists.map((team, index) => {
           const selected = team.id === selectedId;
 
@@ -406,47 +419,54 @@ function QualifiersScene({ state }: { state: State }) {
             <article
               key={team.id}
               className={cn(
-                "team-reveal result-card relative min-h-[47vh] overflow-hidden border bg-white",
+                "team-reveal result-card relative flex flex-col justify-between overflow-hidden border bg-white rounded-lg shadow-sm transition-all",
                 selected
-                  ? "border-[#ed1c24] ring-2 ring-[#ed1c24]/15"
+                  ? "border-[#ed1c24] ring-2 ring-[#ed1c24]/20 shadow-md"
                   : isGrandSelection
                     ? "border-[#e5e5e5] opacity-45 grayscale"
                     : "border-[#dedede]",
               )}
               style={delayStyle(index)}
             >
-              {team.photoPath ? (
-                <Image
-                  src={team.photoPath}
-                  alt={`Foto ${team.name}`}
-                  fill
-                  sizes="25vw"
-                  className="object-cover"
-                  unoptimized
+              {/* Top Media / Mascot Banner */}
+              <div className="relative flex h-[52%] w-full items-center justify-center overflow-hidden border-b border-[#ececec] bg-[#fafafa]">
+                {team.photoPath ? (
+                  <Image
+                    src={team.photoPath}
+                    alt={`Foto ${team.name}`}
+                    fill
+                    sizes="25vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="p-2">
+                    <TeamAvatar team={team} size="hero" />
+                  </div>
+                )}
+                <div className="winner-photo-shade pointer-events-none absolute inset-0" />
+                <div
+                  className="absolute inset-x-0 top-0 h-1 z-10"
+                  style={{ backgroundColor: team.bannerColor }}
                 />
-              ) : (
-                <div className="absolute inset-0 grid place-items-center bg-[#fafafa]">
-                  <TeamAvatar team={team} size="hero" />
-                </div>
-              )}
-              <div className="winner-photo-shade absolute inset-0" />
-              <div
-                className="absolute inset-x-0 top-0 h-1"
-                style={{ backgroundColor: team.bannerColor }}
-              />
-              <div className="relative flex h-full flex-col justify-end p-[clamp(16px,2vw,32px)]">
-                <span className="mb-auto grid size-10 place-items-center border border-[#d5d5d5] bg-white text-sm text-[#242424]">
-                  {selected ? <Crown size={18} /> : index + 1}
+                <span className="absolute left-2.5 top-3 z-10 grid size-8 place-items-center rounded-md border border-[#d5d5d5] bg-white/95 text-xs font-bold text-[#242424] shadow-xs">
+                  {selected ? <Crown size={16} className="text-[#ed1c24]" /> : index + 1}
                 </span>
-                <p className="text-[clamp(10px,.88vw,14px)] tracking-[0.16em] text-[#b5121b]">
-                  {selected
-                    ? "LOLOS KE GRAND FINAL"
-                    : `PEMENANG PENYISIHAN ${team.sourceSession}`}
-                </p>
-                <h3 className="display-type mt-2 text-[clamp(28px,3.2vw,52px)] leading-none text-[#171717]">
-                  {team.name}
-                </h3>
-                <p className="mt-3 text-[clamp(12px,1vw,16px)] text-[#626262]">
+              </div>
+
+              {/* Bottom Content Info Area */}
+              <div className="relative flex flex-1 flex-col justify-between p-[clamp(10px,1.2vw,18px)] bg-white min-w-0">
+                <div className="min-w-0">
+                  <p className="text-[clamp(9px,.75vw,12px)] font-bold tracking-[0.16em] uppercase text-[#b5121b]">
+                    {selected
+                      ? "LOLOS KE GRAND FINAL"
+                      : `PEMENANG PENYISIHAN ${team.sourceSession}`}
+                  </p>
+                  <h3 className="display-type mt-1 text-[clamp(18px,1.9vw,32px)] leading-tight tracking-tight text-[#171717] font-bold line-clamp-2 break-words">
+                    {team.name}
+                  </h3>
+                </div>
+                <p className="mt-1 text-[clamp(10px,.85vw,13px)] font-medium text-[#626262]">
                   {isGrandSelection
                     ? `${team.score} poin`
                     : `Finalis urutan ${team.finalOrder}`}
@@ -479,37 +499,37 @@ function SessionResultScene({ state }: { state: State }) {
     }));
 
   return (
-    <section className="flex flex-1 flex-col">
+    <section className="flex flex-1 flex-col min-h-0">
       <SceneIntro
         eyebrow={`Replay · Final Sesi ${session}`}
         title={`Leaderboard hasil Sesi ${session}`}
         description="Peringkat berikut hanya menghitung perubahan poin pada sesi ini."
       />
-      <div className="mx-auto mt-[clamp(18px,2vw,34px)] grid w-full max-w-6xl flex-1 content-center gap-3">
+      <div className="mx-auto mt-2.5 flex flex-1 flex-col justify-center w-full max-w-5xl gap-2.5 min-h-0">
         {teams.map((team) => (
           <article
             key={team.id}
             className={cn(
-              "team-reveal leaderboard-row grid grid-cols-[70px_70px_minmax(0,1fr)_auto] items-center gap-4 border px-[clamp(16px,2vw,32px)] py-[clamp(12px,1.35vw,22px)]",
+              "team-reveal leaderboard-row grid grid-cols-[56px_52px_minmax(0,1fr)_auto] items-center gap-4 rounded-lg border px-[clamp(14px,1.6vw,24px)] py-[clamp(10px,1vw,16px)] shadow-xs",
               team.sessionRank === 1
                 ? "leaderboard-row-winner border-[#ed1c24] bg-[#fff4f4]"
                 : "border-[#dedede] bg-white",
             )}
             style={delayStyle(team.index)}
           >
-            <span className="score-type text-center text-[clamp(25px,2.6vw,42px)] text-[#8a8a8a]">
+            <span className="score-type text-center text-[clamp(20px,2vw,32px)] font-bold text-[#8a8a8a]">
               #{team.sessionRank}
             </span>
-            <TeamAvatar team={team} size="lg" />
+            <TeamAvatar team={team} size="md" />
             <div className="min-w-0">
-              <p className="display-type truncate text-[clamp(22px,2.4vw,40px)] text-[#181818]">
+              <p className="display-type truncate text-[clamp(18px,2vw,32px)] font-bold text-[#181818]">
                 {team.name}
               </p>
-              <p className="text-[clamp(11px,.9vw,15px)] text-[#747474]">
+              <p className="text-[clamp(10px,.8vw,13px)] text-[#747474]">
                 Poin khusus Final Sesi {session}
               </p>
             </div>
-            <p className="score-type text-[clamp(34px,4vw,66px)] tabular-nums text-[#b5121b]">
+            <p className="score-type text-[clamp(28px,3.2vw,52px)] font-bold tabular-nums text-[#b5121b]">
               {formatSigned(team.sessionScore)}
             </p>
           </article>
@@ -529,24 +549,24 @@ function FinalLiveScene({ state }: { state: State }) {
         : "Lelang maksimal 60 poin · Nilai harus habis dibagi 3";
 
   return (
-    <section className="grid flex-1 grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)] gap-[clamp(14px,1.6vw,28px)]">
-      <div className="flex flex-col gap-[clamp(14px,1.6vw,26px)]">
-        <div className="question-stage relative flex flex-1 items-center overflow-hidden border border-[#d9d9d9] bg-white p-[clamp(24px,3vw,52px)]">
+    <section className="grid flex-1 min-h-0 grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)] gap-[clamp(10px,1.4vw,22px)]">
+      <div className="flex flex-col gap-[clamp(10px,1.2vw,18px)] min-h-0">
+        <div className="question-stage relative flex flex-1 flex-col justify-center overflow-hidden rounded-xl border border-[#d9d9d9] bg-white p-[clamp(18px,2.2vw,38px)] shadow-sm">
           <div className="question-orbit" aria-hidden="true" />
           <div className="relative z-10">
-            <div className="flex items-center gap-3 text-[#b5121b]">
-              <Target />
-              <p className="text-[clamp(11px,.95vw,15px)] tracking-[0.2em]">
+            <div className="flex items-center gap-2.5 text-[#b5121b]">
+              <Target size={20} />
+              <p className="text-[clamp(10px,.85vw,13px)] font-bold tracking-[0.2em] uppercase">
                 PERTANYAAN SAAT INI
               </p>
             </div>
-            <p className="score-type mt-4 text-[clamp(76px,10vw,160px)] leading-none tabular-nums text-[#ed1c24]">
+            <p className="score-type mt-2 text-[clamp(56px,8vw,120px)] leading-none tabular-nums text-[#ed1c24]">
               {state.competition.currentQuestion}
-              <span className="ml-3 text-[.28em] text-[#999]">
+              <span className="ml-2 text-[.32em] text-[#999]">
                 /{state.flow.totalQuestions}
               </span>
             </p>
-            <p className="mt-5 max-w-3xl text-[clamp(17px,1.65vw,28px)] text-[#4f4f4f]">
+            <p className="mt-3 max-w-2xl text-[clamp(14px,1.3vw,22px)] font-medium text-[#4f4f4f]">
               {detail}
             </p>
           </div>
@@ -566,13 +586,13 @@ function LeaderboardScene({
   title: string;
 }) {
   return (
-    <section className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
+    <section className="mx-auto flex w-full max-w-7xl flex-1 flex-col min-h-0">
       <SceneIntro
         eyebrow="Live Standings"
         title={title}
         description="Akumulasi poin dari seluruh sesi Babak Final."
       />
-      <div className="mt-[clamp(18px,2vw,34px)] flex-1">
+      <div className="mt-2.5 flex-1 min-h-0">
         <LeaderboardPanel state={state} />
       </div>
     </section>
@@ -587,28 +607,28 @@ function LeaderboardPanel({
   compact?: boolean;
 }) {
   return (
-    <div className="broadcast-card h-full overflow-hidden">
-      <header className="flex items-center justify-between border-b border-[#dedede] bg-[#fafafa] px-[clamp(18px,2vw,32px)] py-[clamp(14px,1.4vw,22px)]">
-        <span className="flex items-center gap-3">
-          <Trophy className="text-[#ed1c24]" />
-          <span className="display-type text-[clamp(17px,1.6vw,27px)]">
+    <div className="broadcast-card flex flex-col h-full overflow-hidden rounded-xl border border-[#dedede] bg-white shadow-sm">
+      <header className="flex shrink-0 items-center justify-between border-b border-[#dedede] bg-[#fafafa] px-[clamp(14px,1.6vw,24px)] py-[clamp(10px,1vw,16px)]">
+        <span className="flex items-center gap-2.5">
+          <Trophy className="size-5 text-[#ed1c24]" />
+          <span className="display-type text-[clamp(15px,1.3vw,22px)] font-bold">
             Skor Babak Final
           </span>
         </span>
-        <span className="flex items-center gap-2 text-xs tracking-[0.16em] text-[#777]">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.16em] text-[#777]">
           <span className="live-orb is-live" />
           REALTIME
         </span>
       </header>
-      <div className={cn("grid gap-2 p-3", !compact && "content-center")}>
+      <div className={cn("flex flex-1 flex-col justify-around p-2.5 gap-2 overflow-y-auto", !compact && "justify-center max-w-4xl mx-auto w-full")}>
         {state.leaderboard.map((team, index) => (
           <article
             key={team.id}
             className={cn(
-              "team-reveal leaderboard-row grid items-center gap-3 border border-[#e2e2e2] bg-white",
+              "team-reveal leaderboard-row grid items-center gap-3 rounded-lg border border-[#e2e2e2] bg-white shadow-xs transition-all",
               compact
-                ? "grid-cols-[42px_48px_minmax(0,1fr)_auto] px-3 py-3"
-                : "grid-cols-[64px_68px_minmax(0,1fr)_auto] px-[clamp(16px,2vw,32px)] py-[clamp(13px,1.35vw,22px)]",
+                ? "grid-cols-[36px_40px_minmax(0,1fr)_auto] px-3 py-2"
+                : "grid-cols-[52px_56px_minmax(0,1fr)_auto] px-[clamp(14px,1.6vw,24px)] py-[clamp(10px,1.1vw,18px)]",
               team.rank === 1 &&
                 "leaderboard-row-winner border-[#ed1c24] bg-[#fff4f4]",
             )}
@@ -616,25 +636,25 @@ function LeaderboardPanel({
           >
             <span
               className={cn(
-                "score-type text-center text-[#8a8a8a]",
-                compact ? "text-xl" : "text-[clamp(25px,2.5vw,42px)]",
+                "score-type text-center font-bold text-[#8a8a8a]",
+                compact ? "text-lg" : "text-[clamp(20px,2vw,34px)]",
               )}
             >
               #{team.rank}
             </span>
-            <TeamAvatar team={team} size={compact ? "md" : "lg"} />
+            <TeamAvatar team={team} size={compact ? "sm" : "md"} />
             <div className="min-w-0">
               <p
                 className={cn(
-                  "display-type truncate text-[#181818]",
+                  "display-type truncate font-bold text-[#181818]",
                   compact
-                    ? "text-[clamp(16px,1.5vw,24px)]"
-                    : "text-[clamp(22px,2.3vw,38px)]",
+                    ? "text-[clamp(14px,1.2vw,19px)]"
+                    : "text-[clamp(18px,1.9vw,30px)]",
                 )}
               >
                 {team.name}
               </p>
-              <p className="mt-1 text-[clamp(9px,.78vw,13px)] text-[#767676]">
+              <p className="mt-0.5 text-[clamp(9px,.72vw,12px)] text-[#767676]">
                 S1 {team.sessionScores.session1} · S2{" "}
                 {team.sessionScores.session2} · S3{" "}
                 {team.sessionScores.session3}
@@ -642,10 +662,10 @@ function LeaderboardPanel({
             </div>
             <span
               className={cn(
-                "score-type tabular-nums text-[#b5121b]",
+                "score-type font-bold tabular-nums text-[#b5121b]",
                 compact
-                  ? "text-[clamp(28px,2.8vw,46px)]"
-                  : "text-[clamp(38px,4.2vw,70px)]",
+                  ? "text-[clamp(22px,2.2vw,36px)]"
+                  : "text-[clamp(30px,3.2vw,54px)]",
               )}
             >
               <AnimatedNumber value={team.score} />
@@ -667,8 +687,8 @@ function GrandFinalistScene({ state }: { state: State }) {
   }
 
   return (
-    <section className="grid flex-1 grid-cols-[minmax(360px,.85fr)_minmax(0,1.15fr)] items-center gap-[clamp(24px,4vw,72px)]">
-      <div className="team-reveal result-card relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden border border-[#d8d8d8] bg-white">
+    <section className="grid flex-1 min-h-0 grid-cols-[minmax(280px,.8fr)_minmax(0,1.2fr)] items-center gap-[clamp(20px,3.5vw,56px)]">
+      <div className="team-reveal result-card relative mx-auto aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-xl border border-[#d8d8d8] bg-white shadow-md">
         {selected.photoPath ? (
           <Image
             src={selected.photoPath}
@@ -679,23 +699,23 @@ function GrandFinalistScene({ state }: { state: State }) {
             unoptimized
           />
         ) : (
-          <div className="grid h-full place-items-center">
+          <div className="grid h-full place-items-center bg-[#fafafa]">
             <TeamAvatar team={selected} size="hero" />
           </div>
         )}
         <div className="winner-photo-shade absolute inset-0" />
       </div>
       <div className="scene-enter">
-        <Crown className="size-[clamp(56px,6vw,96px)] text-[#ed1c24]" />
-        <p className="mt-7 text-[clamp(12px,1.1vw,18px)] tracking-[0.24em] text-[#b5121b]">
+        <Crown className="size-[clamp(44px,5vw,80px)] text-[#ed1c24]" />
+        <p className="mt-4 text-[clamp(10px,1vw,16px)] font-bold tracking-[0.24em] uppercase text-[#b5121b]">
           LOLOS KE GRAND FINAL
         </p>
-        <h2 className="display-type mt-3 text-[clamp(58px,7vw,112px)] leading-[.92] tracking-tight text-[#181818]">
+        <h2 className="display-type mt-2 text-[clamp(42px,5.5vw,90px)] font-bold leading-[.95] tracking-tight text-[#181818]">
           {selected.name}
         </h2>
-        <p className="mt-7 text-[clamp(18px,1.8vw,30px)] text-[#5f5f5f]">
+        <p className="mt-5 text-[clamp(15px,1.5vw,24px)] text-[#5f5f5f]">
           Peringkat pertama dengan{" "}
-          <span className="font-medium text-[#b5121b]">{selected.score} poin</span>
+          <span className="font-bold text-[#b5121b]">{selected.score} poin</span>
         </p>
       </div>
     </section>
@@ -712,35 +732,37 @@ function GrandFinalLiveScene({ state }: { state: State }) {
   }
 
   return (
-    <section className="grid flex-1 grid-cols-[minmax(340px,.72fr)_minmax(0,1.28fr)] gap-[clamp(18px,2vw,34px)]">
-      <article className="result-card relative overflow-hidden border border-[#dedede] bg-white">
-        {team.photoPath ? (
-          <Image
-            src={team.photoPath}
-            alt={`Foto ${team.name}`}
-            fill
-            sizes="38vw"
-            className="object-cover"
-            unoptimized
-          />
-        ) : (
-          <div className="absolute inset-0 grid place-items-center bg-[#fafafa]">
-            <TeamAvatar team={team} size="hero" />
-          </div>
-        )}
-        <div className="winner-photo-shade absolute inset-0" />
-        <div className="relative flex h-full flex-col justify-end p-[clamp(20px,2.5vw,42px)]">
-          <Crown className="mb-auto size-[clamp(42px,4.5vw,72px)] text-[#ed1c24]" />
-          <p className="text-[clamp(10px,.92vw,15px)] tracking-[0.2em] text-[#b5121b]">
+    <section className="grid flex-1 min-h-0 grid-cols-[minmax(280px,.68fr)_minmax(0,1.32fr)] gap-[clamp(14px,1.6vw,28px)]">
+      <article className="result-card relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#dedede] bg-white shadow-sm">
+        <div className="relative flex-1 w-full overflow-hidden bg-[#fafafa]">
+          {team.photoPath ? (
+            <Image
+              src={team.photoPath}
+              alt={`Foto ${team.name}`}
+              fill
+              sizes="38vw"
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="absolute inset-0 grid place-items-center bg-[#fafafa]">
+              <TeamAvatar team={team} size="hero" />
+            </div>
+          )}
+          <div className="winner-photo-shade absolute inset-0" />
+        </div>
+        <div className="relative flex flex-col justify-end p-[clamp(16px,2vw,32px)] bg-white">
+          <Crown className="mb-2 size-[clamp(32px,3.5vw,56px)] text-[#ed1c24]" />
+          <p className="text-[clamp(9px,.8vw,13px)] font-bold tracking-[0.2em] uppercase text-[#b5121b]">
             PESERTA GRAND FINAL
           </p>
-          <h2 className="display-type mt-2 text-[clamp(40px,4.8vw,78px)] leading-none text-[#181818]">
+          <h2 className="display-type mt-1 text-[clamp(30px,3.8vw,62px)] font-bold leading-none text-[#181818]">
             {team.name}
           </h2>
         </div>
       </article>
-      <div className="flex flex-col gap-[clamp(14px,1.5vw,24px)]">
-        <div className="grid flex-1 grid-cols-2 gap-px overflow-hidden border border-[#dedede] bg-[#dedede]">
+      <div className="flex flex-col gap-[clamp(10px,1.2vw,18px)] min-h-0">
+        <div className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#dedede] bg-[#dedede] shadow-xs">
           <GrandMetric
             label="Pertanyaan"
             value={`${state.competition.currentQuestion} / 4`}
@@ -750,11 +772,11 @@ function GrandFinalLiveScene({ state }: { state: State }) {
             value={formatRupiah(state.competition.grandPrize)}
             accent
           />
-          <div className="col-span-2 bg-[#fff4f4] p-[clamp(20px,2.5vw,42px)]">
-            <p className="text-[clamp(10px,.88vw,14px)] tracking-[0.18em] text-[#b5121b]">
+          <div className="col-span-2 bg-[#fff4f4] p-[clamp(16px,2vw,32px)]">
+            <p className="text-[clamp(9px,.8vw,13px)] font-bold tracking-[0.18em] text-[#b5121b]">
               STATUS SAAT INI
             </p>
-            <p className="display-type mt-3 text-[clamp(30px,3.8vw,62px)] leading-tight text-[#191919]">
+            <p className="display-type mt-2 text-[clamp(24px,3vw,48px)] font-bold leading-tight text-[#191919]">
               {state.competition.grandDecisionPending
                 ? "Lanjut atau Tidak Lanjut?"
                 : `Menjawab Pertanyaan ${state.competition.currentQuestion}`}
@@ -778,10 +800,10 @@ function WinnerScene({ state }: { state: State }) {
   }
 
   return (
-    <section className="relative flex flex-1 items-center justify-center">
+    <section className="relative flex flex-1 items-center justify-center min-h-0">
       <div className="winner-burst" aria-hidden="true" />
-      <div className="relative z-10 grid w-full max-w-7xl grid-cols-[minmax(340px,.78fr)_minmax(0,1.22fr)] items-center gap-[clamp(30px,5vw,86px)]">
-        <div className="team-reveal result-card relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden border border-[#d8d8d8] bg-white">
+      <div className="relative z-10 grid w-full max-w-6xl grid-cols-[minmax(280px,.75fr)_minmax(0,1.25fr)] items-center gap-[clamp(24px,4vw,68px)]">
+        <div className="team-reveal result-card relative mx-auto aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-xl border border-[#d8d8d8] bg-white shadow-lg">
           {winner.photoPath ? (
             <Image
               src={winner.photoPath}
@@ -792,7 +814,7 @@ function WinnerScene({ state }: { state: State }) {
               unoptimized
             />
           ) : (
-            <div className="grid h-full place-items-center">
+            <div className="grid h-full place-items-center bg-[#fafafa]">
               <TeamAvatar team={winner} size="hero" />
             </div>
           )}
@@ -800,21 +822,21 @@ function WinnerScene({ state }: { state: State }) {
         </div>
         <div className="scene-enter">
           {state.competition.grandPrize > 0 ? (
-            <Sparkles className="size-[clamp(56px,6vw,96px)] text-[#ed1c24]" />
+            <Sparkles className="size-[clamp(44px,5vw,80px)] text-[#ed1c24]" />
           ) : (
-            <Award className="size-[clamp(56px,6vw,96px)] text-[#ed1c24]" />
+            <Award className="size-[clamp(44px,5vw,80px)] text-[#ed1c24]" />
           )}
-          <p className="mt-7 text-[clamp(12px,1.1vw,18px)] tracking-[0.28em] text-[#b5121b]">
+          <p className="mt-4 text-[clamp(10px,1vw,16px)] font-bold tracking-[0.28em] uppercase text-[#b5121b]">
             HASIL AKHIR GRAND FINAL
           </p>
-          <h2 className="display-type mt-3 text-[clamp(58px,7.2vw,116px)] leading-[.9] tracking-tight text-[#181818]">
+          <h2 className="display-type mt-2 text-[clamp(44px,5.8vw,96px)] font-bold leading-[.92] tracking-tight text-[#181818]">
             {winner.name}
           </h2>
-          <div className="mt-9 border-l-4 border-[#ed1c24] pl-6">
-            <p className="text-[clamp(14px,1.3vw,22px)] text-[#6a6a6a]">
+          <div className="mt-6 border-l-4 border-[#ed1c24] pl-5">
+            <p className="text-[clamp(12px,1.1vw,18px)] font-medium text-[#6a6a6a]">
               Hadiah yang diperoleh
             </p>
-            <p className="score-type mt-1 text-[clamp(38px,4.8vw,78px)] text-[#b5121b]">
+            <p className="score-type mt-1 text-[clamp(32px,4vw,64px)] font-bold text-[#b5121b]">
               {formatRupiah(state.competition.grandPrize)}
             </p>
           </div>
@@ -828,25 +850,25 @@ function LastActionTicker({ state }: { state: State }) {
   const action = state.recentActions[0];
 
   return (
-    <div className="ticker-card overflow-hidden border border-[#dedede] bg-white">
-      <div className="flex items-center gap-3 border-b border-[#e5e5e5] bg-[#fafafa] px-5 py-3 text-[#b5121b]">
-        <Radio size={17} />
-        <span className="text-xs tracking-[0.18em]">HASIL TERAKHIR</span>
+    <div className="ticker-card shrink-0 overflow-hidden rounded-xl border border-[#dedede] bg-white shadow-xs">
+      <div className="flex items-center gap-2.5 border-b border-[#e5e5e5] bg-[#fafafa] px-4 py-2 text-[#b5121b]">
+        <Radio size={15} />
+        <span className="text-[11px] font-bold tracking-[0.18em]">HASIL TERAKHIR</span>
       </div>
-      <div className="flex min-h-20 items-center justify-between gap-4 px-5 py-4">
-        <p className="text-[clamp(15px,1.45vw,24px)] text-[#353535]">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 min-h-[56px]">
+        <p className="text-[clamp(13px,1.1vw,18px)] font-medium text-[#353535] truncate">
           {action?.description ?? "Menunggu hasil pertanyaan."}
         </p>
         {action?.deltas.length ? (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 gap-1.5">
             {action.deltas.map((delta) => (
               <span
                 key={`${action.id}-${delta.teamId}`}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-[clamp(11px,.9vw,14px)]",
+                  "rounded-full px-2.5 py-1 text-[clamp(10px,.8vw,13px)] font-bold",
                   delta.points > 0
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-red-50 text-[#b5121b]",
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-red-50 text-[#b5121b] border border-red-200",
                 )}
               >
                 {delta.teamName} {formatSigned(delta.points)}
@@ -869,13 +891,13 @@ function GrandMetric({
   accent?: boolean;
 }) {
   return (
-    <div className="bg-white p-[clamp(20px,2.5vw,42px)]">
-      <p className="text-[clamp(10px,.88vw,14px)] tracking-[0.16em] text-[#777]">
+    <div className="bg-white p-[clamp(16px,2vw,32px)]">
+      <p className="text-[clamp(9px,.8vw,13px)] font-bold tracking-[0.16em] text-[#777]">
         {label.toUpperCase()}
       </p>
       <p
         className={cn(
-          "score-type mt-3 text-[clamp(28px,3.4vw,56px)] leading-tight text-[#1c1c1c]",
+          "score-type mt-2 text-[clamp(22px,2.8vw,46px)] font-bold leading-tight text-[#1c1c1c]",
           accent && "text-[#b5121b]",
         )}
       >
@@ -895,16 +917,16 @@ function SceneIntro({
   description: string;
 }) {
   return (
-    <header>
-      <p className="flex items-center gap-3 text-[clamp(10px,.88vw,14px)] tracking-[0.22em] text-[#b5121b]">
-        <span className="h-1.5 w-9 bg-[#ed1c24]" />
-        {eyebrow.toUpperCase()}
+    <header className="shrink-0">
+      <p className="flex items-center gap-2.5 text-[clamp(9px,.75vw,12px)] font-bold tracking-[0.2em] uppercase text-[#b5121b]">
+        <span className="h-1.5 w-7 bg-[#ed1c24] rounded-full" />
+        {eyebrow}
       </p>
-      <div className="mt-2 flex items-end justify-between gap-8">
-        <h2 className="display-type text-[clamp(32px,4.2vw,68px)] leading-none tracking-tight text-[#181818]">
+      <div className="mt-1 flex items-baseline justify-between gap-6">
+        <h2 className="display-type text-[clamp(22px,2.6vw,42px)] font-bold leading-none tracking-tight text-[#181818]">
           {title}
         </h2>
-        <p className="max-w-xl text-right text-[clamp(12px,1vw,17px)] leading-relaxed text-[#666]">
+        <p className="max-w-md text-right text-[clamp(10px,.82vw,13px)] leading-tight text-[#666] shrink-0">
           {description}
         </p>
       </div>
@@ -916,7 +938,7 @@ function IndependenceLogo({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "brand-logo-window relative overflow-hidden bg-white",
+        "brand-logo-window relative overflow-hidden bg-transparent",
         className,
       )}
       aria-label="Logo HUT Republik Indonesia Ke-81"
@@ -941,10 +963,10 @@ function TeamAvatar({
   size: "sm" | "md" | "lg" | "hero";
 }) {
   const sizeClass = {
-    sm: "size-8 text-xs",
-    md: "size-12 text-sm",
-    lg: "size-16 text-xl",
-    hero: "size-40 text-5xl",
+    sm: "size-7 text-xs rounded",
+    md: "size-9 text-sm rounded-md",
+    lg: "size-12 text-lg rounded-lg",
+    hero: "size-24 sm:size-28 text-3xl rounded-xl shadow-sm",
   }[size];
 
   return (
@@ -960,7 +982,7 @@ function TeamAvatar({
           src={team.photoPath}
           alt={`Foto ${team.name}`}
           fill
-          sizes={size === "hero" ? "160px" : "64px"}
+          sizes={size === "hero" ? "140px" : "64px"}
           className="object-cover"
           unoptimized
         />
